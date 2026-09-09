@@ -109,12 +109,12 @@ export class InvoiceService {
         dyeingJob: job,
 
         // DC details
-        partyDcNo: text(i.partyDcNo, 'Party DC number', { max: 50 }),
-        partyDcDate: date(i.partyDcDate, 'Party DC date', false),
+        partyDcNo: text(i.partyDcNo ?? job.partyDcNo, 'Party DC number', { max: 50 }),
+        partyDcDate: date(i.partyDcDate ?? job.receivedDate, 'Party DC date', false),
         deliveryDcNo: text(i.deliveryDcNo, 'Delivery DC number', { max: 50 }),
 
         // Fabric details
-        colour: text(i.colour, 'Colour', { max: 50 }),
+        colour: text(i.colour ?? job.colour, 'Colour', { max: 50 }),
         fabricWidth: text(i.fabricWidth, 'Fabric width', { max: 30 }),
 
         // Billing

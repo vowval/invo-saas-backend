@@ -132,7 +132,7 @@ export class InvoicePdfService {
     /* ================= TABLE ================= */
 
     const tableTop = buyerY + 95;
-    const rowHeight = 32;
+    const rowHeight = 46;
 
     // const columns = [
     //   { label: 'Party\nDC No', width: 55 },
@@ -203,27 +203,36 @@ export class InvoicePdfService {
         item.partyDcNo || '',
         this.formatDate(item.partyDcDate),
         item.deliveryDcNo || '',
-        `${item.product?.name || ''}${item.product?.description ? `\n${item.product.description}` : ''}`,
-        item.colour || '',
+        [
+          item.dyeingJob?.jobNo && `Job: ${item.dyeingJob.jobNo}`,
+          item.dyeingJob?.fabricType && `Fabric: ${item.dyeingJob.fabricType}`,
+          item.product?.name && `Process: ${item.product.name}`,
+          item.product?.description,
+        ].filter(Boolean).join('\n'),
+        item.colour || item.dyeingJob?.colour || '',
         item.fabricWidth || '',
         this.money(item.quantity, 3),
-        item.product?.unit || 'N/A',
+        item.product?.unit || item.dyeingJob?.unit || 'N/A',
         this.money(item.rate),
         this.money(item.amount),
       ];
+      const itemRowHeight = Math.max(
+        rowHeight,
+        doc.heightOfString(row[3], { width: columns[3].width - 6 }) + 12,
+      );
 
       row.forEach((cell, i) => {
         doc
-          .rect(colX, y, columns[i].width, rowHeight)
+          .rect(colX, y, columns[i].width, itemRowHeight)
           .stroke()
           .text(cell, colX + 3, y + 6, {
             width: columns[i].width - 6,
-            align: i >= 8 ? 'right' : 'center',
+            align: i >= 6 ? 'right' : 'center',
           });
         colX += columns[i].width;
       });
 
-      y += rowHeight;
+      y += itemRowHeight;
     });
 
     /* ================= TOTALS ================= */

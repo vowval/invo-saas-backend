@@ -37,7 +37,7 @@ exports.AppModule = AppModule = __decorate([
                 inject: [config_1.ConfigService],
                 useFactory: (config) => ({
                     type: 'postgres',
-                    host: config.get('DB_HOST'),
+                    host: config.get('DATABASE_URL'),
                     port: Number(config.get('DB_PORT')),
                     username: config.get('DB_USER'),
                     password: config.get('DB_PASSWORD'),

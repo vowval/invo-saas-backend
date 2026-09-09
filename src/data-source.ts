@@ -13,6 +13,10 @@ import { GoodsReceiptNote } from './dyeing-jobs/grn.entity';
 import { Machine } from './production/machine.entity';
 import { Batch } from './production/batch.entity';
 import { SubscriptionPlan } from './subscriptions/subscription-plan.entity';
+import { ChemicalItem } from './inventory/chemical-item.entity';
+import { StockTransaction } from './inventory/stock-transaction.entity';
+import { Recipe } from './inventory/recipe.entity';
+import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -22,7 +26,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD, // 👈 now guaranteed string
   database: process.env.DB_NAME,
 
-  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch],
+  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });

@@ -6,6 +6,8 @@ import { DyeingJob } from '../dyeing-jobs/dyeing-job.entity';
 import { Machine, MachineStatus } from './machine.entity';
 import { Batch, BatchStatus } from './batch.entity';
 import { decimal, text } from '../common/input';
+import { InventoryService } from '../inventory/inventory.service';
+import { Recipe } from '../inventory/recipe.entity';
 
 @Injectable()
 export class ProductionService {
@@ -16,6 +18,7 @@ export class ProductionService {
     private readonly batchRepo: Repository<Batch>,
     @InjectRepository(DyeingJob)
     private readonly jobRepo: Repository<DyeingJob>,
+    private readonly inventoryService: InventoryService,
   ) {}
 
   // ================= Machines =================
@@ -70,12 +73,18 @@ export class ProductionService {
       if (!dyeingJob) throw new NotFoundException('Dyeing job not found');
     }
 
+    let recipeRef: Recipe | null = null;
+    if (data.recipeId) {
+      recipeRef = await this.inventoryService.getRecipeOrFail(data.recipeId, companyId);
+    }
+
     const batch = this.batchRepo.create({
       batchNo: text(data.batchNo, 'Batch number', { required: true, max: 50 }),
       dyeingJob,
       machine,
       company: { id: companyId } as Company,
-      recipe: text(data.recipe, 'Recipe', { max: 50 }),
+      recipe: recipeRef ? recipeRef.code : text(data.recipe, 'Recipe', { max: 50 }),
+      recipeRef,
       inputQty: data.inputQty === undefined || data.inputQty === null || data.inputQty === ''
         ? null
         : decimal(data.inputQty, 'Input quantity', { min: 0 }),
@@ -87,7 +96,7 @@ export class ProductionService {
   listBatches(companyId: string) {
     return this.batchRepo.find({
       where: { company: { id: companyId } },
-      relations: ['machine', 'dyeingJob'],
+      relations: ['machine', 'dyeingJob', 'recipeRef'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -95,7 +104,7 @@ export class ProductionService {
   private async findBatchOrFail(id: string, companyId: string) {
     const batch = await this.batchRepo.findOne({
       where: { id, company: { id: companyId } },
-      relations: ['machine'],
+      relations: ['machine', 'company', 'recipeRef'],
     });
     if (!batch) throw new NotFoundException('Batch not found');
     return batch;
@@ -114,6 +123,13 @@ export class ProductionService {
     }
     if (batch.machine.status === MachineStatus.RUNNING) {
       throw new BadRequestException('Machine is already running another batch');
+    }
+
+    // Deduct chemical stock for the recipe before marking the batch as
+    // running, so a stock shortfall blocks the start rather than leaving
+    // an already-running batch with no chemicals recorded.
+    if (batch.recipeRef) {
+      await this.inventoryService.consumeForBatch(batch);
     }
 
     batch.status = BatchStatus.RUNNING;
@@ -150,7 +166,7 @@ export class ProductionService {
     const machines = await this.listMachines(companyId);
     const runningBatches = await this.batchRepo.find({
       where: { company: { id: companyId }, status: BatchStatus.RUNNING },
-      relations: ['machine', 'dyeingJob'],
+      relations: ['machine', 'dyeingJob', 'recipeRef'],
     });
     const batchByMachineId = new Map(runningBatches.map(batch => [batch.machine?.id, batch]));
 

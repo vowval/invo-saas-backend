@@ -20,6 +20,11 @@ import { SubscriptionPlan } from './subscriptions/subscription-plan.entity';
 import { ProductionModule } from './production/production.module';
 import { Machine } from './production/machine.entity';
 import { Batch } from './production/batch.entity';
+import { InventoryModule } from './inventory/inventory.module';
+import { ChemicalItem } from './inventory/chemical-item.entity';
+import { StockTransaction } from './inventory/stock-transaction.entity';
+import { Recipe } from './inventory/recipe.entity';
+import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
 
 
 @Module({
@@ -37,7 +42,7 @@ import { Batch } from './production/batch.entity';
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch],
+        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient],
         synchronize: false,
       }),
     }),
@@ -50,6 +55,7 @@ import { Batch } from './production/batch.entity';
     SubscriptionModule,
     SuperAdminModule,
     ProductionModule,
+    InventoryModule,
 
   ],
 })

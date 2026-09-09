@@ -5,9 +5,10 @@ import { Batch } from './batch.entity';
 import { DyeingJob } from '../dyeing-jobs/dyeing-job.entity';
 import { ProductionController } from './production.controller';
 import { ProductionService } from './production.service';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Machine, Batch, DyeingJob])],
+  imports: [TypeOrmModule.forFeature([Machine, Batch, DyeingJob]), InventoryModule],
   controllers: [ProductionController],
   providers: [ProductionService],
 })

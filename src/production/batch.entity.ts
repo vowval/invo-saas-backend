@@ -8,6 +8,7 @@ import {
 import { Company } from '../companies/company.entity';
 import { DyeingJob } from '../dyeing-jobs/dyeing-job.entity';
 import { Machine } from './machine.entity';
+import { Recipe } from '../inventory/recipe.entity';
 
 export enum BatchStatus {
   SCHEDULED = 'SCHEDULED',
@@ -33,9 +34,15 @@ export class Batch {
   @ManyToOne(() => Company, { onDelete: 'CASCADE' })
   company: Company;
 
-  // e.g. "BLACK-04"
+  // Free-text recipe label, e.g. "BLACK-04" (kept for backward compatibility
+  // with batches created before recipe management existed).
   @Column({ nullable: true })
   recipe: string;
+
+  // Optional link to a saved Recipe; when set, chemical stock is
+  // auto-deducted based on the recipe's ingredient dosages and inputQty.
+  @ManyToOne(() => Recipe, { onDelete: 'SET NULL', nullable: true })
+  recipeRef: Recipe | null;
 
   @Column('decimal', { precision: 12, scale: 3, nullable: true })
   inputQty: number | null;

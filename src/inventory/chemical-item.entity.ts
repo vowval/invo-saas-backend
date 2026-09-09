@@ -41,6 +41,11 @@ export class ChemicalItem {
   @Column('decimal', { precision: 14, scale: 3, default: 0 })
   minStockLevel: number;
 
+  // Latest known purchase cost per unit, used to auto-value chemical
+  // consumption in batch costing without re-entering prices manually.
+  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  unitCost: number;
+
   @ManyToOne(() => Company, { onDelete: 'CASCADE' })
   company: Company;
 

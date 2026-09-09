@@ -32,6 +32,8 @@ import { QualityControlModule } from './quality-control/quality-control.module';
 import { QcInspection } from './quality-control/qc-inspection.entity';
 import { PaymentModule } from './payments/payment.module';
 import { Payment } from './payments/payment.entity';
+import { CostingModule } from './costing/costing.module';
+import { BatchCost } from './costing/batch-cost.entity';
 
 
 @Module({
@@ -49,7 +51,7 @@ import { Payment } from './payments/payment.entity';
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment],
+        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost],
         synchronize: false,
       }),
     }),
@@ -66,6 +68,7 @@ import { Payment } from './payments/payment.entity';
     LabDipModule,
     QualityControlModule,
     PaymentModule,
+    CostingModule,
 
   ],
 })

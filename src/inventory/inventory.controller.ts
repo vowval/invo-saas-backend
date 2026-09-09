@@ -33,7 +33,7 @@ export class InventoryController {
 
   @Post('chemicals/:id/purchase')
   purchase(@Param('id') id: string, @Body() body: any, @Req() req: any) {
-    return this.inventoryService.recordPurchase(id, req.user.companyId, body.quantity, body.notes);
+    return this.inventoryService.recordPurchase(id, req.user.companyId, body.quantity, body.notes, body.unitCost);
   }
 
   @Post('chemicals/:id/adjustment')

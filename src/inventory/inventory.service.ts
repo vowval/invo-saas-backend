@@ -40,6 +40,7 @@ export class InventoryService {
       category: data.category || undefined,
       unit: text(data.unit, 'Unit') || 'kg',
       minStockLevel: num(data.minStockLevel, 'Minimum stock level') ?? 0,
+      unitCost: num(data.unitCost, 'Unit cost') ?? 0,
       currentStock: 0,
       company: { id: companyId } as any,
     });
@@ -99,8 +100,14 @@ export class InventoryService {
     return chemical;
   }
 
-  async recordPurchase(chemicalItemId: string, companyId: string, quantity: number, notes?: string) {
+  async recordPurchase(chemicalItemId: string, companyId: string, quantity: number, notes?: string, unitCost?: number) {
     const qty = num(quantity, 'Quantity', { required: true, min: 0.001 })!;
+    const cost = num(unitCost, 'Unit cost');
+    if (cost !== undefined) {
+      const chemical = await this.findChemicalOrFail(chemicalItemId, companyId);
+      chemical.unitCost = cost;
+      await this.chemicalRepo.save(chemical);
+    }
     return this.recordTransaction(chemicalItemId, companyId, StockTransactionType.PURCHASE, qty, notes);
   }
 
@@ -122,6 +129,25 @@ export class InventoryService {
       relations: ['batch'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  // Total cost of chemicals/dyes consumed by a batch, valued at each
+  // chemical's current unit cost. Used by production costing to
+  // auto-populate the dye/chemical cost line without manual re-entry.
+  async getChemicalCostForBatch(batchId: string, companyId: string) {
+    const consumptions = await this.txnRepo.find({
+      where: {
+        batch: { id: batchId },
+        company: { id: companyId },
+        type: StockTransactionType.CONSUMPTION,
+      },
+      relations: ['chemicalItem'],
+    });
+    return Number(
+      consumptions
+        .reduce((sum, txn) => sum + Math.abs(Number(txn.quantity)) * Number(txn.chemicalItem.unitCost || 0), 0)
+        .toFixed(2),
+    );
   }
 
   // ---- Recipes ----

@@ -11,7 +11,7 @@ const invoice_item_entity_1 = require("../invoices/invoice-item.entity");
 const dyeing_job_entity_1 = require("../dyeing-jobs/dyeing-job.entity");
 const dataSource = new typeorm_1.DataSource({
     type: 'postgres',
-    host: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL,
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,

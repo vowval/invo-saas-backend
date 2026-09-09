@@ -27,7 +27,7 @@ import { SubscriptionPlan } from './subscriptions/subscription-plan.entity';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get('DATABASE_URL'),
+        url: config.get('DATABASE_URL'),
         port: Number(config.get('DB_PORT')),
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),

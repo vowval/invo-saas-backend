@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice } from './invoice.entity';
-import * as PDFDocument from 'pdfkit';
+// import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 
 @Injectable()
 export class InvoicePdfService {

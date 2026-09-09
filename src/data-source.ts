@@ -17,6 +17,9 @@ import { ChemicalItem } from './inventory/chemical-item.entity';
 import { StockTransaction } from './inventory/stock-transaction.entity';
 import { Recipe } from './inventory/recipe.entity';
 import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
+import { LabDip } from './lab-dip/lab-dip.entity';
+import { LabDipSample } from './lab-dip/lab-dip-sample.entity';
+import { QcInspection } from './quality-control/qc-inspection.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -26,7 +29,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD, // 👈 now guaranteed string
   database: process.env.DB_NAME,
 
-  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient],
+  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });

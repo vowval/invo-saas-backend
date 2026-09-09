@@ -44,6 +44,11 @@ export class Batch {
   @ManyToOne(() => Recipe, { onDelete: 'SET NULL', nullable: true })
   recipeRef: Recipe | null;
 
+  // Set when this batch was spawned to reprocess a QC-rejected batch,
+  // e.g. batch "B1024-R1" points back to "B1024".
+  @ManyToOne(() => Batch, { onDelete: 'SET NULL', nullable: true })
+  parentBatch: Batch | null;
+
   @Column('decimal', { precision: 12, scale: 3, nullable: true })
   inputQty: number | null;
 

@@ -25,6 +25,11 @@ import { ChemicalItem } from './inventory/chemical-item.entity';
 import { StockTransaction } from './inventory/stock-transaction.entity';
 import { Recipe } from './inventory/recipe.entity';
 import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
+import { LabDipModule } from './lab-dip/lab-dip.module';
+import { LabDip } from './lab-dip/lab-dip.entity';
+import { LabDipSample } from './lab-dip/lab-dip-sample.entity';
+import { QualityControlModule } from './quality-control/quality-control.module';
+import { QcInspection } from './quality-control/qc-inspection.entity';
 
 
 @Module({
@@ -42,7 +47,7 @@ import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient],
+        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection],
         synchronize: false,
       }),
     }),
@@ -56,6 +61,8 @@ import { RecipeIngredient } from './inventory/recipe-ingredient.entity';
     SuperAdminModule,
     ProductionModule,
     InventoryModule,
+    LabDipModule,
+    QualityControlModule,
 
   ],
 })

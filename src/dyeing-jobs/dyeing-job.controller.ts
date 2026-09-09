@@ -31,6 +31,11 @@ export class DyeingJobController {
     return this.jobService.findActive(req.user.companyId);
   }
 
+  @Get('status-board')
+  getStatusBoard(@Req() req: any) {
+    return this.jobService.getStatusBoard(req.user.companyId);
+  }
+
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
@@ -43,6 +48,15 @@ export class DyeingJobController {
       body.quantityDelivered,
       req.user.companyId,
     );
+  }
+
+  @Patch(':id/tracking-status')
+  updateTrackingStatus(
+    @Param('id') id: string,
+    @Body() body: any,
+    @Req() req: any,
+  ) {
+    return this.jobService.updateTrackingStatus(id, body.trackingStatus, req.user.companyId);
   }
 
   @Get(':id')
@@ -68,5 +82,15 @@ export class DyeingJobController {
     @Req() req: any,
   ) {
     return this.jobService.updateStage(id, stageId, body, req.user.companyId);
+  }
+
+  @Get(':id/grn')
+  listGrns(@Param('id') id: string, @Req() req: any) {
+    return this.jobService.listGrns(id, req.user.companyId);
+  }
+
+  @Post(':id/grn')
+  createGrn(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+    return this.jobService.createGrn(id, body, req.user.companyId);
   }
 }

@@ -2,8 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from '../companies/company.entity';
-import { DyeingJob, DyeingJobStatus } from './dyeing-job.entity';
+import { DyeingJob, DyeingJobStatus, TrackingStatus } from './dyeing-job.entity';
 import { ProcessStage, ProcessStageStatus } from './process-stage.entity';
+import { GoodsReceiptNote } from './grn.entity';
 import { date, decimal, text } from '../common/input';
 
 @Injectable()
@@ -13,11 +14,14 @@ export class DyeingJobService {
     private readonly jobRepo: Repository<DyeingJob>,
     @InjectRepository(ProcessStage)
     private readonly stageRepo: Repository<ProcessStage>,
+    @InjectRepository(GoodsReceiptNote)
+    private readonly grnRepo: Repository<GoodsReceiptNote>,
   ) {}
 
   async create(data: any, companyId: string) {
     const quantityReceived = decimal(data.quantityReceived, 'Received quantity', { min: 0.001 });
     const unit = text(data.unit, 'Unit', { required: true, max: 10 }).toUpperCase();
+    const receivedDate = date(data.receivedDate, 'Received date');
 
     const job = this.jobRepo.create({
       jobNo: text(data.jobNo, 'Job number', { required: true, max: 50 }),
@@ -30,13 +34,23 @@ export class DyeingJobService {
       quantityReceived,
       quantityDelivered: 0,
       status: DyeingJobStatus.RECEIVED,
+      trackingStatus: TrackingStatus.RECEIVED,
       partyDcNo: text(data.partyDcNo, 'Party DC number', { max: 50 }),
-      receivedDate: date(data.receivedDate, 'Received date'),
+      receivedDate,
       expectedDeliveryDate: date(data.expectedDeliveryDate, 'Expected delivery date', false),
       processNotes: text(data.processNotes, 'Process notes', { max: 1000 }),
       company: { id: companyId } as Company,
     });
-    return this.jobRepo.save(job);
+    const savedJob = await this.jobRepo.save(job);
+
+    // Auto-create the inward GRN when vehicle/roll/lot/inspection details are provided at intake.
+    const hasGrnDetails = [data.vehicleNo, data.lotNumber, data.rollCount, data.weight, data.inspectionNotes]
+      .some(value => value !== undefined && value !== null && value !== '');
+    if (hasGrnDetails) {
+      await this.createGrn(savedJob.id, { ...data, receivedDate: data.receivedDate }, companyId);
+    }
+
+    return savedJob;
   }
 
   findAll(companyId: string) {
@@ -101,7 +115,11 @@ export class DyeingJobService {
       where: { dyeingJob: { id: job.id } },
       order: { sequence: 'ASC' },
     });
-    return { ...job, stages, ...this.computeWastage(job, stages) };
+    const grns = await this.grnRepo.find({
+      where: { dyeingJob: { id: job.id } },
+      order: { createdAt: 'DESC' },
+    });
+    return { ...job, stages, grns, ...this.computeWastage(job, stages) };
   }
 
   async listStages(jobId: string, companyId: string) {
@@ -225,4 +243,63 @@ export class DyeingJobService {
       wastagePercent,
     };
   }
+
+  // ================= GRN (fabric inward) =================
+
+  async createGrn(jobId: string, data: any, companyId: string) {
+    const job = await this.findJobOrFail(jobId, companyId);
+
+    const grn = this.grnRepo.create({
+      grnNo: text(data.grnNo, 'GRN number', { max: 50 }) || `GRN-${Date.now()}`,
+      dyeingJob: job,
+      company: { id: companyId } as Company,
+      vehicleNo: text(data.vehicleNo, 'Vehicle number', { max: 30 }),
+      lotNumber: text(data.lotNumber, 'Lot number', { max: 50 }),
+      colour: text(data.colour, 'Colour', { max: 50 }),
+      rollCount: data.rollCount === undefined || data.rollCount === null || data.rollCount === ''
+        ? null
+        : decimal(data.rollCount, 'Roll count', { min: 0 }),
+      weight: data.weight === undefined || data.weight === null || data.weight === ''
+        ? null
+        : decimal(data.weight, 'Weight', { min: 0 }),
+      inspectionNotes: text(data.inspectionNotes, 'Inspection notes', { max: 1000 }),
+      receivedDate: date(data.receivedDate, 'Received date', false) ?? job.receivedDate,
+    });
+    return this.grnRepo.save(grn);
+  }
+
+  async listGrns(jobId: string, companyId: string) {
+    await this.findJobOrFail(jobId, companyId);
+    return this.grnRepo.find({
+      where: { dyeingJob: { id: jobId } },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  // ================= Live production/status board =================
+
+  async updateTrackingStatus(jobId: string, trackingStatus: TrackingStatus, companyId: string) {
+    const job = await this.findJobOrFail(jobId, companyId);
+    if (!Object.values(TrackingStatus).includes(trackingStatus)) {
+      throw new BadRequestException('Invalid tracking status');
+    }
+    job.trackingStatus = trackingStatus;
+    return this.jobRepo.save(job);
+  }
+
+  async getStatusBoard(companyId: string) {
+    const jobs = await this.jobRepo.find({
+      where: { company: { id: companyId } },
+      order: { updatedAt: 'DESC' },
+    });
+    const board: Record<string, DyeingJob[]> = {};
+    for (const status of Object.values(TrackingStatus)) {
+      board[status] = [];
+    }
+    for (const job of jobs) {
+      board[job.trackingStatus].push(job);
+    }
+    return board;
+  }
 }
+

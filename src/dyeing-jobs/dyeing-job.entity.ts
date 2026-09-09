@@ -15,6 +15,21 @@ export enum DyeingJobStatus {
   DELIVERED = 'DELIVERED',
 }
 
+// Granular live-production tracking status, shown on the production board.
+// Distinct from `status`, which stays coarse for billing/invoicing logic.
+export enum TrackingStatus {
+  RECEIVED = 'RECEIVED',
+  WAITING_FOR_PRODUCTION = 'WAITING_FOR_PRODUCTION',
+  IN_DYEING = 'IN_DYEING',
+  WASHING = 'WASHING',
+  FINISHING = 'FINISHING',
+  QC = 'QC',
+  PACKED = 'PACKED',
+  READY_FOR_DISPATCH = 'READY_FOR_DISPATCH',
+  DISPATCHED = 'DISPATCHED',
+  RETURNED = 'RETURNED',
+}
+
 @Entity()
 export class DyeingJob {
   @PrimaryGeneratedColumn('uuid')
@@ -62,6 +77,13 @@ export class DyeingJob {
     default: DyeingJobStatus.RECEIVED,
   })
   status: DyeingJobStatus;
+
+  @Column({
+    type: 'enum',
+    enum: TrackingStatus,
+    default: TrackingStatus.RECEIVED,
+  })
+  trackingStatus: TrackingStatus;
 
   @Column({ nullable: true })
   processNotes: string;

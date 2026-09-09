@@ -44,4 +44,29 @@ export class DyeingJobController {
       req.user.companyId,
     );
   }
+
+  @Get(':id')
+  getOne(@Param('id') id: string, @Req() req: any) {
+    return this.jobService.getJobWithSummary(id, req.user.companyId);
+  }
+
+  @Get(':id/stages')
+  listStages(@Param('id') id: string, @Req() req: any) {
+    return this.jobService.listStages(id, req.user.companyId);
+  }
+
+  @Post(':id/stages')
+  addStage(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+    return this.jobService.addStage(id, body, req.user.companyId);
+  }
+
+  @Patch(':id/stages/:stageId')
+  updateStage(
+    @Param('id') id: string,
+    @Param('stageId') stageId: string,
+    @Body() body: any,
+    @Req() req: any,
+  ) {
+    return this.jobService.updateStage(id, stageId, body, req.user.companyId);
+  }
 }

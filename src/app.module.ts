@@ -11,6 +11,7 @@ import { Invoice } from './invoices/invoice.entity';
 import { InvoiceItem } from './invoices/invoice-item.entity';
 import { DyeingJobModule } from './dyeing-jobs/dyeing-job.module';
 import { DyeingJob } from './dyeing-jobs/dyeing-job.entity';
+import { ProcessStage } from './dyeing-jobs/process-stage.entity';
 import { CompanyModule } from './companies/company.module';
 import { SubscriptionModule } from './subscriptions/subscription.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
@@ -32,7 +33,7 @@ import { SubscriptionPlan } from './subscriptions/subscription-plan.entity';
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, SubscriptionPlan],
+        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, SubscriptionPlan],
         synchronize: false,
       }),
     }),

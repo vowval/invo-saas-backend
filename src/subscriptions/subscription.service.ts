@@ -13,13 +13,19 @@ export class SubscriptionService {
 
   async getPlans() {
     const plans = await this.planRepo.find({ where: { active: true }, order: { priceInr: 'ASC' } });
-    return plans.length ? plans : this.planRepo.create(getSubscriptionPlanDefinitions());
+    if (plans.length) return plans;
+    return this.ensureDefaultPlans();
   }
 
   async getPlan(id: string) {
-    const plan = await this.planRepo.findOne({ where: { id, active: true } });
-    if (!plan) throw new BadRequestException('Invalid subscription plan');
-    return plan;
+    const normalizedId = typeof id === 'string' ? id.trim().toUpperCase() : '';
+    const plan = await this.planRepo.findOne({ where: { id: normalizedId, active: true } });
+    if (plan) return plan;
+
+    const seededPlans = await this.ensureDefaultPlans();
+    const fallbackPlan = seededPlans.find(item => item.id === normalizedId && item.active);
+    if (!fallbackPlan) throw new BadRequestException('Invalid subscription plan');
+    return fallbackPlan;
   }
 
   async getAllPlans() {
@@ -83,6 +89,14 @@ export class SubscriptionService {
     if (body.requiresPayment !== undefined) plan.requiresPayment = Boolean(body.requiresPayment);
     if (body.active !== undefined) plan.active = body.active === true;
     return this.planRepo.save(plan);
+  }
+
+  private async ensureDefaultPlans() {
+    const existingPlans = await this.planRepo.find();
+    if (existingPlans.length) return existingPlans;
+
+    const defaults = getSubscriptionPlanDefinitions().map(plan => this.planRepo.create(plan));
+    return this.planRepo.save(defaults);
   }
 
   private price(value: unknown) {

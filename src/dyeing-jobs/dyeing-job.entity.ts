@@ -15,19 +15,23 @@ export enum DyeingJobStatus {
   DELIVERED = 'DELIVERED',
 }
 
-// Granular live-production tracking status, shown on the production board.
-// Distinct from `status`, which stays coarse for billing/invoicing logic.
+// Ordered end-to-end workflow, shown on the production board.
+// `status` remains a coarse value for legacy reporting and is derived from this.
 export enum TrackingStatus {
-  RECEIVED = 'RECEIVED',
-  WAITING_FOR_PRODUCTION = 'WAITING_FOR_PRODUCTION',
-  IN_DYEING = 'IN_DYEING',
-  WASHING = 'WASHING',
+  FABRIC_RECEIVED = 'FABRIC_RECEIVED',
+  FABRIC_INSPECTION = 'FABRIC_INSPECTION',
+  JOB_CARD_PRODUCTION_ORDER = 'JOB_CARD_PRODUCTION_ORDER',
+  LAB_DIP_SHADE_APPROVAL = 'LAB_DIP_SHADE_APPROVAL',
+  DYEING = 'DYEING',
+  WASHING_AFTER_TREATMENT = 'WASHING_AFTER_TREATMENT',
   FINISHING = 'FINISHING',
-  QC = 'QC',
-  PACKED = 'PACKED',
-  READY_FOR_DISPATCH = 'READY_FOR_DISPATCH',
-  DISPATCHED = 'DISPATCHED',
-  RETURNED = 'RETURNED',
+  QUALITY_CHECK = 'QUALITY_CHECK',
+  PACKING = 'PACKING',
+  READY_FOR_DELIVERY = 'READY_FOR_DELIVERY',
+  DELIVERY = 'DELIVERY',
+  READY_FOR_INVOICE = 'READY_FOR_INVOICE',
+  GST_INVOICE = 'GST_INVOICE',
+  PAYMENT_CLOSED = 'PAYMENT_CLOSED',
 }
 
 @Entity()
@@ -81,7 +85,7 @@ export class DyeingJob {
   @Column({
     type: 'enum',
     enum: TrackingStatus,
-    default: TrackingStatus.RECEIVED,
+    default: TrackingStatus.FABRIC_RECEIVED,
   })
   trackingStatus: TrackingStatus;
 

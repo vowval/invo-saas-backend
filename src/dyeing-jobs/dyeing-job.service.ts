@@ -34,7 +34,7 @@ export class DyeingJobService {
       quantityReceived,
       quantityDelivered: 0,
       status: DyeingJobStatus.RECEIVED,
-      trackingStatus: TrackingStatus.RECEIVED,
+      trackingStatus: TrackingStatus.FABRIC_RECEIVED,
       partyDcNo: text(data.partyDcNo, 'Party DC number', { max: 50 }),
       receivedDate,
       expectedDeliveryDate: date(data.expectedDeliveryDate, 'Expected delivery date', false),
@@ -62,11 +62,10 @@ export class DyeingJobService {
 
   findActive(companyId: string) {
     return this.jobRepo.find({
-      where: [
-        { company: { id: companyId }, status: DyeingJobStatus.RECEIVED },
-        { company: { id: companyId }, status: DyeingJobStatus.IN_PROCESS },
-        { company: { id: companyId }, status: DyeingJobStatus.READY_FOR_DELIVERY },
-      ],
+      where: {
+        company: { id: companyId },
+        trackingStatus: TrackingStatus.READY_FOR_INVOICE,
+      },
       order: { createdAt: 'DESC' },
     });
   }
@@ -85,6 +84,9 @@ export class DyeingJobService {
     }
     if (!Object.values(DyeingJobStatus).includes(status)) {
       throw new BadRequestException('Invalid dyeing job status');
+    }
+    if (status !== this.statusForTrackingStatus(job.trackingStatus)) {
+      throw new BadRequestException('Job status is derived from its current workflow stage');
     }
 
     const delivered = quantityDelivered === undefined
@@ -161,11 +163,6 @@ export class DyeingJobService {
     });
     const saved = await this.stageRepo.save(stage);
 
-    if (job.status === DyeingJobStatus.RECEIVED) {
-      job.status = DyeingJobStatus.IN_PROCESS;
-      await this.jobRepo.save(job);
-    }
-
     return saved;
   }
 
@@ -204,7 +201,8 @@ export class DyeingJobService {
 
     const savedStage = await this.stageRepo.save(stage);
 
-    // If this was the final (highest-sequence) stage and it's now completed, sync the job's delivered quantity.
+    // The last completed process stage provides the delivered quantity; workflow
+    // progression is still controlled exclusively by the ordered tracking stages.
     const allStages = await this.stageRepo.find({
       where: { dyeingJob: { id: job.id } },
       order: { sequence: 'DESC' },
@@ -217,7 +215,6 @@ export class DyeingJobService {
       finalStage.outputQty !== null
     ) {
       job.quantityDelivered = Number(finalStage.outputQty);
-      job.status = DyeingJobStatus.READY_FOR_DELIVERY;
       await this.jobRepo.save(job);
     }
 
@@ -283,8 +280,37 @@ export class DyeingJobService {
     if (!Object.values(TrackingStatus).includes(trackingStatus)) {
       throw new BadRequestException('Invalid tracking status');
     }
+
+    const workflow = Object.values(TrackingStatus);
+    const currentIndex = workflow.indexOf(job.trackingStatus);
+    const nextStatus = workflow[currentIndex + 1];
+    if (trackingStatus !== nextStatus) {
+      throw new BadRequestException(
+        `Jobs must advance one stage at a time. The next stage is ${nextStatus ?? 'not available because the workflow is closed'}`,
+      );
+    }
+
     job.trackingStatus = trackingStatus;
+    job.status = this.statusForTrackingStatus(trackingStatus);
     return this.jobRepo.save(job);
+  }
+
+  private statusForTrackingStatus(trackingStatus: TrackingStatus): DyeingJobStatus {
+    if (trackingStatus === TrackingStatus.FABRIC_RECEIVED) {
+      return DyeingJobStatus.RECEIVED;
+    }
+    if (trackingStatus === TrackingStatus.READY_FOR_DELIVERY) {
+      return DyeingJobStatus.READY_FOR_DELIVERY;
+    }
+    if (
+      trackingStatus === TrackingStatus.DELIVERY ||
+      trackingStatus === TrackingStatus.READY_FOR_INVOICE ||
+      trackingStatus === TrackingStatus.GST_INVOICE ||
+      trackingStatus === TrackingStatus.PAYMENT_CLOSED
+    ) {
+      return DyeingJobStatus.DELIVERED;
+    }
+    return DyeingJobStatus.IN_PROCESS;
   }
 
   async getStatusBoard(companyId: string) {
@@ -302,4 +328,3 @@ export class DyeingJobService {
     return board;
   }
 }
-

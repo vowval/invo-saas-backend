@@ -6,7 +6,7 @@ import { InvoiceItem } from './invoice-item.entity';
 import { Product } from '../products/product.entity';
 import { date, decimal, text } from '../common/input';
 import { Company } from '../companies/company.entity';
-import { DyeingJob, DyeingJobStatus } from '../dyeing-jobs/dyeing-job.entity';
+import { DyeingJob, TrackingStatus } from '../dyeing-jobs/dyeing-job.entity';
 import { SubscriptionService } from '../subscriptions/subscription.service';
 
 @Injectable()
@@ -80,8 +80,8 @@ export class InvoiceService {
           company: { id: companyId },
         },
       });
-      if (!job || job.status === DyeingJobStatus.DELIVERED) {
-        throw new BadRequestException('Each invoice item must reference an active received fabric job');
+      if (!job || job.trackingStatus !== TrackingStatus.READY_FOR_INVOICE) {
+        throw new BadRequestException('Each invoice item must reference a job that is ready for invoice');
       }
       if (data.buyerName !== job.customerName) {
         throw new BadRequestException('Invoice customer must match the selected fabric job');
@@ -167,6 +167,13 @@ export class InvoiceService {
     });
 
     const savedInvoice = await this.invoiceRepo.save(invoice);
+    const invoicedJobs = new Map(items.map(item => [item.dyeingJob.id, item.dyeingJob]));
+    await Promise.all(
+      Array.from(invoicedJobs.values()).map(job => {
+        job.trackingStatus = TrackingStatus.GST_INVOICE;
+        return this.jobRepo.save(job);
+      }),
+    );
     company.invoicesUsed = currentInvoiceCount + 1;
     await this.companyRepo.save(company);
     return savedInvoice;

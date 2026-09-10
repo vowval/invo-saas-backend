@@ -61,6 +61,8 @@ const dataSource = new DataSource({
     Process,
     ProcessParameter,
   ],
+  migrations: ['dist/migrations/*.js'],
+  migrationsRun: true,
   synchronize: false,
 });
 

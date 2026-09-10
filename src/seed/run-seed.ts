@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { seedSuperAdmin } from './super-admin.seed';
+import { seedFactoryAdmin } from './factory-admin.seed';
 import { seedProcessMaster } from './process-master.seed';
 import { seedProcessParameters } from './process-parameters.seed';
 import { User } from '../users/user.entity';
@@ -74,8 +75,9 @@ async function run() {
     console.log('');
     
     await seedSuperAdmin(dataSource);
+    console.log('');
     
-    await dataSource.destroy();
+    await seedFactoryAdmin(dataSource);
     process.exit(0);
   } catch (err) {
     console.error('❌ Seed failed', err);

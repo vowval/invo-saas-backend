@@ -25,16 +25,23 @@ import { BatchCost } from './costing/batch-cost.entity';
 import { ProcessCategory } from './process-master/entities/process-category.entity';
 import { Process } from './process-master/entities/process.entity';
 import { ProcessParameter } from './process-master/entities/process-parameter.entity';
+import { WashingBatch } from './washing-execution/washing-batch.entity';
+import { WashingBatchAudit } from './washing-execution/washing-batch-audit.entity';
+import { DyeingBatch } from './dyeing-execution/dyeing-batch.entity';
+import { DyeingBatchAudit } from './dyeing-execution/dyeing-batch-audit.entity';
+import { DyeingProcessEvent } from './dyeing-execution/dyeing-process-event.entity';
+import { FinishingBatch } from './finishing-execution/finishing-batch.entity';
+import { FinishingBatchAudit } from './finishing-execution/finishing-batch-audit.entity';
+import { DryingBatch } from './drying-execution/drying-batch.entity';
+import { DryingBatchAudit } from './drying-execution/drying-batch-audit.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD, // 👈 now guaranteed string
-  database: process.env.DB_NAME,
-
-  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter],
+  entities: [
+    User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter,
+    WashingBatch, WashingBatchAudit, DyeingBatch, DyeingBatchAudit, DyeingProcessEvent, FinishingBatch, FinishingBatchAudit, DryingBatch, DryingBatchAudit
+  ],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });

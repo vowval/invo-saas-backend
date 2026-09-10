@@ -19,9 +19,12 @@ export class DyeingJobService {
   ) {}
 
   async create(data: any, companyId: string) {
-    const quantityReceived = decimal(data.quantityReceived, 'Received quantity', { min: 0.001 });
+    // DEPRECATED RECEIVING FIELDS: These are kept for backward compatibility only.
+    // New receiving workflows MUST use the FabricReceipt entity (fabric-receiving module).
+    // For new jobs, create a FabricReceipt first, then create the DyeingJob with reference.
+    const quantityReceived = data.quantityReceived ? decimal(data.quantityReceived, 'Received quantity', { min: 0.001 }) : null;
     const unit = text(data.unit, 'Unit', { required: true, max: 10 }).toUpperCase();
-    const receivedDate = date(data.receivedDate, 'Received date');
+    const receivedDate = data.receivedDate ? date(data.receivedDate, 'Received date') : null;
 
     const job = this.jobRepo.create({
       jobNo: text(data.jobNo, 'Job number', { required: true, max: 50 }),
@@ -35,7 +38,7 @@ export class DyeingJobService {
       quantityDelivered: 0,
       status: DyeingJobStatus.RECEIVED,
       trackingStatus: TrackingStatus.FABRIC_RECEIVED,
-      partyDcNo: text(data.partyDcNo, 'Party DC number', { max: 50 }),
+      partyDcNo: text(data.partyDcNo, 'Party DC number', { max: 50, required: false }),
       receivedDate,
       expectedDeliveryDate: date(data.expectedDeliveryDate, 'Expected delivery date', false),
       processNotes: text(data.processNotes, 'Process notes', { max: 1000 }),

@@ -39,11 +39,27 @@ import { ProcessMasterModule } from './process-master/process-master.module';
 import { ProcessCategory } from './process-master/entities/process-category.entity';
 import { Process } from './process-master/entities/process.entity';
 import { ProcessParameter } from './process-master/entities/process-parameter.entity';
+import { FabricReceivingModule } from './fabric-receiving/fabric-receiving.module';
+import { FabricReceipt } from './fabric-receiving/fabric-receipt.entity';
+import { ReceiptLot } from './fabric-receiving/receipt-lot.entity';
+import { ReceiptRoll } from './fabric-receiving/receipt-roll.entity';
+import { FabricInspection } from './fabric-receiving/fabric-inspection.entity';
+import { InspectionCheckpoint } from './fabric-receiving/inspection-checkpoint.entity';
+import { ProcessRouteModule } from './process-route/process-route.module';
+import { ProcessRoute } from './process-route/process-route.entity';
+import { ProcessRouteStep } from './process-route/process-route-step.entity';
+import { WashingExecutionModule } from './washing-execution/washing-execution.module';
+import { WashingBatch } from './washing-execution/washing-batch.entity';
+import { WashingBatchAudit } from './washing-execution/washing-batch-audit.entity';
+import { DyeingExecutionModule } from './dyeing-execution/dyeing-execution.module';
+import { DyeingBatch } from './dyeing-execution/dyeing-batch.entity';
+import { DyeingBatchAudit } from './dyeing-execution/dyeing-batch-audit.entity';
+import { DyeingProcessEvent, DyeingChemicalConsumption, DyeingDyeConsumption, DyeingQCResult } from './dyeing-execution/dyeing-process-event.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // 👈 makes env available everywhere
+      isGlobal: true,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -55,7 +71,46 @@ import { ProcessParameter } from './process-master/entities/process-parameter.en
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter],
+        entities: [
+          User,
+          Company,
+          Product,
+          Invoice,
+          InvoiceItem,
+          DyeingJob,
+          ProcessStage,
+          GoodsReceiptNote,
+          SubscriptionPlan,
+          Machine,
+          Batch,
+          ChemicalItem,
+          StockTransaction,
+          Recipe,
+          RecipeIngredient,
+          LabDip,
+          LabDipSample,
+          QcInspection,
+          Payment,
+          BatchCost,
+          ProcessCategory,
+          Process,
+          ProcessParameter,
+          FabricReceipt,
+          ReceiptLot,
+          ReceiptRoll,
+          FabricInspection,
+          InspectionCheckpoint,
+          ProcessRoute,
+          ProcessRouteStep,
+          WashingBatch,
+          WashingBatchAudit,
+          DyeingBatch,
+          DyeingBatchAudit,
+          DyeingProcessEvent,
+          DyeingChemicalConsumption,
+          DyeingDyeConsumption,
+          DyeingQCResult,
+        ],
         migrations: ['dist/migrations/*.js'],
         migrationsRun: true,
         synchronize: false,
@@ -77,7 +132,10 @@ import { ProcessParameter } from './process-master/entities/process-parameter.en
     PaymentModule,
     CostingModule,
     ProcessMasterModule,
-
+    FabricReceivingModule,
+    ProcessRouteModule,
+    WashingExecutionModule,
+    DyeingExecutionModule,
   ],
 })
 export class AppModule {}

@@ -60,16 +60,31 @@ export class DyeingJob {
   @Column()
   unit: string;
 
-  @Column('decimal', { precision: 12, scale: 3 })
+  /**
+   * @deprecated Use FabricReceipt.netWeight instead.
+   * This field is kept for historical data only. All new receiving workflows
+   * should use the FabricReceipt entity (fabric-receiving module).
+   */
+  @Column('decimal', { precision: 12, scale: 3, nullable: true })
   quantityReceived: number;
 
   @Column('decimal', { precision: 12, scale: 3, default: 0 })
   quantityDelivered: number;
 
+  /**
+   * @deprecated Use FabricReceipt.customerDcNumber instead.
+   * This field is kept for historical data only. All new receiving workflows
+   * should use the FabricReceipt entity (fabric-receiving module).
+   */
   @Column({ nullable: true })
   partyDcNo: string;
 
-  @Column({ type: 'date' })
+  /**
+   * @deprecated Use FabricReceipt.receivedDate instead.
+   * This field is kept for historical data only. All new receiving workflows
+   * should use the FabricReceipt entity (fabric-receiving module).
+   */
+  @Column({ type: 'date', nullable: true })
   receivedDate: Date;
 
   @Column({ type: 'date', nullable: true })

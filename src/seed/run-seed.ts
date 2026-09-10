@@ -28,6 +28,9 @@ import { BatchCost } from '../costing/batch-cost.entity';
 import { ProcessCategory } from '../process-master/entities/process-category.entity';
 import { Process } from '../process-master/entities/process.entity';
 import { ProcessParameter } from '../process-master/entities/process-parameter.entity';
+import { FabricReceipt } from '../fabric-receiving/fabric-receipt.entity';
+import { ReceiptLot } from '../fabric-receiving/receipt-lot.entity';
+import { ReceiptRoll } from '../fabric-receiving/receipt-roll.entity';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -60,6 +63,9 @@ const dataSource = new DataSource({
     ProcessCategory,
     Process,
     ProcessParameter,
+    FabricReceipt,
+    ReceiptLot,
+    ReceiptRoll,
   ],
   migrations: ['dist/migrations/*.js'],
   migrationsRun: true,

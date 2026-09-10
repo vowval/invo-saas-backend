@@ -56,15 +56,15 @@ export class DyeingJobService {
     return savedJob;
   }
 
-  findAll(companyId: string) {
-    return this.jobRepo.find({
+  async findAll(companyId: string) {
+    return await this.jobRepo.find({
       where: { company: { id: companyId } },
       order: { createdAt: 'DESC' },
     });
   }
 
-  findActive(companyId: string) {
-    return this.jobRepo.find({
+  async findActive(companyId: string) {
+    return await this.jobRepo.find({
       where: {
         company: { id: companyId },
         trackingStatus: TrackingStatus.READY_FOR_INVOICE,
@@ -129,7 +129,7 @@ export class DyeingJobService {
 
   async listStages(jobId: string, companyId: string) {
     await this.findJobOrFail(jobId, companyId);
-    return this.stageRepo.find({
+    return await this.stageRepo.find({
       where: { dyeingJob: { id: jobId } },
       order: { sequence: 'ASC' },
     });
@@ -270,7 +270,7 @@ export class DyeingJobService {
 
   async listGrns(jobId: string, companyId: string) {
     await this.findJobOrFail(jobId, companyId);
-    return this.grnRepo.find({
+    return await this.grnRepo.find({
       where: { dyeingJob: { id: jobId } },
       order: { createdAt: 'DESC' },
     });

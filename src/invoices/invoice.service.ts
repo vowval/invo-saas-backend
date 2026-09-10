@@ -200,8 +200,8 @@ export class InvoiceService {
   }
 
   // ================= LIST INVOICES =================
-  findAll(companyId: string) {
-    return this.invoiceRepo.find({
+  async findAll(companyId: string) {
+    return await this.invoiceRepo.find({
       where: { company: { id: companyId } },
       relations: ['items', 'items.product'],
       order: { createdAt: 'DESC' },
@@ -209,8 +209,8 @@ export class InvoiceService {
   }
 
   // ================= SINGLE INVOICE =================
-  findOne(id: string, companyId: string) {
-    return this.invoiceRepo.findOne({
+  async findOne(id: string, companyId: string) {
+    return await this.invoiceRepo.findOne({
       where: { id, company: { id: companyId } },
       relations: ['items', 'items.product'],
     });

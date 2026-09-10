@@ -28,7 +28,7 @@ export class Packing {
   job: DyeingJob;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: PackingStatus,
     default: PackingStatus.PENDING,
   })

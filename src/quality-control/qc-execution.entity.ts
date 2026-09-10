@@ -44,6 +44,7 @@ export class QcExecution {
   @Column({
     type: 'enum',
     enum: QcExecutionStatus,
+    enumName: 'qc_execution_status',
     default: QcExecutionStatus.PENDING,
   })
   qcStatus: QcExecutionStatus;
@@ -51,6 +52,7 @@ export class QcExecution {
   @Column({
     type: 'enum',
     enum: QcOverallResult,
+    enumName: 'qc_overall_result',
     nullable: true,
   })
   overallResult: QcOverallResult | null;

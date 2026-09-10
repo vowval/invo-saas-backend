@@ -22,7 +22,7 @@ export class QcResult {
   @ManyToOne(() => QcCheckTemplate, { onDelete: 'RESTRICT' })
   qcCheckTemplate: QcCheckTemplate;
 
-  @Column({ type: 'enum', enum: QcOverallResult })
+  @Column({ type: 'enum', enum: QcOverallResult, enumName: 'qc_overall_result' })
   result: QcOverallResult;
 
   @Column('text', { nullable: true })

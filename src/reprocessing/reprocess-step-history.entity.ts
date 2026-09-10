@@ -38,7 +38,7 @@ export class ReprocessStepHistory {
   stepOrder: number;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: ReprocessStepStatus,
     default: ReprocessStepStatus.PENDING,
   })

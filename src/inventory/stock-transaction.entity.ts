@@ -30,7 +30,7 @@ export class StockTransaction {
   chemicalItem: ChemicalItem;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: StockTransactionType,
   })
   type: StockTransactionType;

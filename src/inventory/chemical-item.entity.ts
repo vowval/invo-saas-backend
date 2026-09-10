@@ -23,7 +23,7 @@ export class ChemicalItem {
   name: string;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: ChemicalCategory,
     default: ChemicalCategory.CHEMICAL,
   })

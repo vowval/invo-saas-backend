@@ -53,7 +53,7 @@ export class Batch {
   inputQty: number | null;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: BatchStatus,
     default: BatchStatus.SCHEDULED,
   })

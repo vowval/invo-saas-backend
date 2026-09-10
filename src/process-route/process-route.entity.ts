@@ -33,7 +33,7 @@ export class ProcessRoute {
   routeName: string;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: ProcessRouteStatus,
     default: ProcessRouteStatus.PENDING,
   })

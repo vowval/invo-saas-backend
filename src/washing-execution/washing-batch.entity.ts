@@ -52,6 +52,7 @@ export class WashingBatch {
   @Column({
     type: 'enum',
     enum: WashingProcessType,
+    enumName: 'washing_process_type',
   })
   processType: WashingProcessType;
 
@@ -73,7 +74,7 @@ export class WashingBatch {
   @Column({ nullable: true })
   recipeName: string; // Recipe name for reference
 
-  @Column({ type: 'enum', enum: WashingBatchStatus, default: WashingBatchStatus.PENDING })
+  @Column({ type: 'enum', enum: WashingBatchStatus, enumName: 'washing_batch_status', default: WashingBatchStatus.PENDING })
   status: WashingBatchStatus;
 
   // Shift tracking

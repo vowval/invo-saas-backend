@@ -26,7 +26,7 @@ export class Machine {
   machineType: string;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: MachineStatus,
     default: MachineStatus.IDLE,
   })

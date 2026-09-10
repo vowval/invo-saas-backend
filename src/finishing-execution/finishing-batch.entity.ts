@@ -81,7 +81,7 @@ export class FinishingBatch {
   processType: FinishingProcessType;
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: FinishingBatchStatus,
     default: FinishingBatchStatus.PENDING,
   })

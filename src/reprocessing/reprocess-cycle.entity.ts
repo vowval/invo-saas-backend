@@ -41,7 +41,7 @@ export class ReprocessCycle {
   startProcess: string; // e.g., "Reactive Dyeing"
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: ReprocessCycleStatus,
     default: ReprocessCycleStatus.PENDING,
   })

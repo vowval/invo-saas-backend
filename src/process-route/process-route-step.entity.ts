@@ -34,7 +34,7 @@ export class ProcessRouteStep {
   sequence: number; // 1, 2, 3, ... enforces order
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: StepStatus,
     default: StepStatus.PENDING,
   })

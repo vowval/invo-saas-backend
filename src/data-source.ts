@@ -25,6 +25,8 @@ import { BatchCost } from './costing/batch-cost.entity';
 import { ProcessCategory } from './process-master/entities/process-category.entity';
 import { Process } from './process-master/entities/process.entity';
 import { ProcessParameter } from './process-master/entities/process-parameter.entity';
+import { ProcessRoute } from './process-route/process-route.entity';
+import { ProcessRouteStep } from './process-route/process-route-step.entity';
 import { WashingBatch } from './washing-execution/washing-batch.entity';
 import { WashingBatchAudit } from './washing-execution/washing-batch-audit.entity';
 import { DyeingBatch } from './dyeing-execution/dyeing-batch.entity';
@@ -40,6 +42,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   entities: [
     User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter,
+    ProcessRoute, ProcessRouteStep,
     WashingBatch, WashingBatchAudit, DyeingBatch, DyeingBatchAudit, DyeingProcessEvent, FinishingBatch, FinishingBatchAudit, DryingBatch, DryingBatchAudit
   ],
   migrations: ['src/migrations/*.ts'],

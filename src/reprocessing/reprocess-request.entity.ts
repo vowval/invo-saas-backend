@@ -39,7 +39,7 @@ export class ReprocessRequest {
   proposedAction: string; // e.g., "Reactive Dyeing", "Washing", etc.
 
   @Column({
-    type: 'enum',
+    type: 'enum', enumName: 'placeholder',
     enum: ReprocessRequestStatus,
     default: ReprocessRequestStatus.PENDING,
   })

@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/user.entity';
-import { Role } from '../auth/role.enum';
+import { User, UserRole } from '../users/user.entity';
 
 export async function seedSuperAdmin(
   dataSource: DataSource,
@@ -31,7 +30,7 @@ export async function seedSuperAdmin(
     name,
     email,
     password: hashedPassword,
-    role: Role.SUPER_ADMIN,
+    role: UserRole.SUPER_ADMIN,
     company: null, // 👈 Super admin is platform-level
   });
 

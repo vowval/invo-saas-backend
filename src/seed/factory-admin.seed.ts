@@ -1,8 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/user.entity';
+import { User, UserRole } from '../users/user.entity';
 import { Company } from '../companies/company.entity';
-import { Role } from '../auth/role.enum';
 
 /**
  * Seeds a factory admin user for testing/demo purposes
@@ -65,7 +64,7 @@ export async function seedFactoryAdmin(
     name: factoryAdminName,
     email: factoryAdminEmail,
     password: hashedPassword,
-    role: Role.ADMIN, // This is 'ADMIN' in enum = 'factory-admin' in code
+    role: UserRole.ADMIN,
     company,
   });
 

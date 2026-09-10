@@ -1,9 +1,8 @@
-
 import { JwtService } from '@nestjs/jwt';
 import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User, UserRole } from '../users/user.entity';
 import { Company } from '../companies/company.entity';
 import * as bcrypt from 'bcrypt';
 import { email, text } from '../common/input';
@@ -56,7 +55,7 @@ export class AuthService {
       name,
       email: userEmail,
       password: await bcrypt.hash(dto.password, 10),
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
       company
     });
 

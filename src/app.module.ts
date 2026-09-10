@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { Company } from './companies/company.entity';
 import { ProductModule } from './products/product.module';
@@ -55,11 +56,14 @@ import { ProcessParameter } from './process-master/entities/process-parameter.en
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
         entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter],
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: true,
         synchronize: false,
       }),
     }),
 
     AuthModule,
+    UsersModule,
     ProductModule,
     InvoiceModule,
     DyeingJobModule,

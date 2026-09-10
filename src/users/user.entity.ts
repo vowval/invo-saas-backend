@@ -1,6 +1,12 @@
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Company } from '../companies/company.entity';
+
+export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  STAFF = 'STAFF',
+}
 
 @Entity()
 export class User {
@@ -16,9 +22,19 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.STAFF,
+  })
+  role: UserRole;
 
   @ManyToOne(() => Company, company => company.users)
   company: Company;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

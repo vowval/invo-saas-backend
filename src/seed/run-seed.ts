@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
+import { seedSubscriptionPlans } from './subscription-plans.seed';
 import { seedSuperAdmin } from './super-admin.seed';
 import { seedFactoryAdmin } from './factory-admin.seed';
 import { seedProcessMaster } from './process-master.seed';
@@ -67,6 +68,9 @@ async function run() {
   try {
     await dataSource.initialize();
     console.log('Running seeds...\n');
+    
+    await seedSubscriptionPlans(dataSource);
+    console.log('');
     
     await seedProcessMaster(dataSource);
     console.log('');

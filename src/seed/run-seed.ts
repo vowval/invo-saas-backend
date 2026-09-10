@@ -5,6 +5,7 @@ import { seedSuperAdmin } from './super-admin.seed';
 import { seedFactoryAdmin } from './factory-admin.seed';
 import { seedProcessMaster } from './process-master.seed';
 import { seedProcessParameters } from './process-parameters.seed';
+import { seedTestData } from './test-data.seed';
 import { User } from '../users/user.entity';
 import { Company } from '../companies/company.entity';
 import { Product } from '../products/product.entity';
@@ -90,6 +91,9 @@ async function run() {
     console.log('');
     
     await seedFactoryAdmin(dataSource);
+    console.log('');
+    
+    await seedTestData(dataSource);
     process.exit(0);
   } catch (err) {
     console.error('❌ Seed failed', err);
@@ -98,3 +102,4 @@ async function run() {
 }
 
 run();
+

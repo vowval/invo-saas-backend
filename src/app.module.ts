@@ -34,7 +34,9 @@ import { PaymentModule } from './payments/payment.module';
 import { Payment } from './payments/payment.entity';
 import { CostingModule } from './costing/costing.module';
 import { BatchCost } from './costing/batch-cost.entity';
-
+import { ProcessMasterModule } from './process-master/process-master.module';
+import { ProcessCategory } from './process-master/process-category.entity';
+import { Process } from './process-master/process.entity';
 
 @Module({
   imports: [
@@ -51,7 +53,7 @@ import { BatchCost } from './costing/batch-cost.entity';
         username: config.get('DB_USER'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost],
+        entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process],
         synchronize: false,
       }),
     }),
@@ -69,6 +71,7 @@ import { BatchCost } from './costing/batch-cost.entity';
     QualityControlModule,
     PaymentModule,
     CostingModule,
+    ProcessMasterModule,
 
   ],
 })

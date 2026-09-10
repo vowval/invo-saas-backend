@@ -38,7 +38,7 @@ export class CreateEnums1789200000001 implements MigrationInterface {
         await queryRunner.query(`CREATE TYPE "public"."qc_inspection_colourfastnessresult_enum" AS ENUM('PASS', 'FAIL')`);
         await queryRunner.query(`CREATE TYPE "public"."qc_inspection_overall_enum" AS ENUM('PASS', 'FAIL')`);
         await queryRunner.query(`CREATE TYPE "public"."payment_mode_enum" AS ENUM('CASH', 'CHECK', 'BANK_TRANSFER', 'CREDIT_CARD')`);
-        await queryRunner.query(`CREATE TYPE "public"."process_parameters_data_type_enum" AS ENUM('TEXT', 'NUMBER', 'BOOLEAN', 'DATE', 'TIME')`);
+        await queryRunner.query(`CREATE TYPE "public"."process_parameters_data_type_enum" AS ENUM('text', 'integer', 'decimal', 'boolean', 'select', 'date', 'time', 'duration', 'quantity', 'percentage', 'temperature', 'pH', 'machine', 'recipe', 'chemical', 'colour', 'shade')`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

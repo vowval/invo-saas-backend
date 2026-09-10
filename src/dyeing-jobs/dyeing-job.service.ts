@@ -101,7 +101,7 @@ export class DyeingJobService {
 
     job.status = status;
     job.quantityDelivered = delivered;
-    return this.jobRepo.save(job);
+    return await this.jobRepo.save(job);
   }
 
   private async findJobOrFail(id: string, companyId: string): Promise<DyeingJob> {
@@ -265,7 +265,7 @@ export class DyeingJobService {
       inspectionNotes: text(data.inspectionNotes, 'Inspection notes', { max: 1000 }),
       receivedDate: date(data.receivedDate, 'Received date', false) ?? job.receivedDate,
     });
-    return this.grnRepo.save(grn);
+    return await this.grnRepo.save(grn);
   }
 
   async listGrns(jobId: string, companyId: string) {
@@ -295,7 +295,7 @@ export class DyeingJobService {
 
     job.trackingStatus = trackingStatus;
     job.status = this.statusForTrackingStatus(trackingStatus);
-    return this.jobRepo.save(job);
+    return await this.jobRepo.save(job);
   }
 
   private statusForTrackingStatus(trackingStatus: TrackingStatus): DyeingJobStatus {

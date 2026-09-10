@@ -79,6 +79,7 @@ import { Delivery } from './delivery/delivery.entity';
 import { DeliveryPackage } from './delivery/delivery-package.entity';
 import { DeliveryAudit } from './delivery/delivery-audit.entity';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -184,6 +185,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PackingModule,
     DeliveryModule,
     DashboardModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

@@ -25,6 +25,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
+    enumName: 'user_role',
     default: UserRole.STAFF,
   })
   role: UserRole;

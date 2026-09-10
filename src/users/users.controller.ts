@@ -12,6 +12,7 @@ import {
   HttpStatus,
   ForbiddenException,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UsersService, CreateUserDto, UpdateUserDto } from './users.service';
 import { User, UserRole } from './user.entity';
 
@@ -30,6 +31,7 @@ interface AuthRequest extends Request {
  * IMPORTANT: User creation enforces maxUsers limit from company's subscription plan
  */
 @Controller('api/users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -57,6 +59,24 @@ export class UsersController {
     }
 
     return this.usersService.getUsersByCompanyId(companyId);
+  }
+
+  /**
+   * GET /api/users
+   * Get all users for the current user's company
+   * 
+   * Access Control:
+   * - SUPER_ADMIN: Returns all users across all companies
+   * - ADMIN: Returns users for their company only
+   * - STAFF: Forbidden
+   */
+  @Get()
+  async getAllUsers(@Request() req: AuthRequest) {
+    if (req.user.role === UserRole.STAFF) {
+      throw new ForbiddenException('Staff cannot view user list');
+    }
+
+    return this.usersService.getUsersByCompanyId(req.user.companyId);
   }
 
   /**

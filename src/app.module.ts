@@ -156,7 +156,7 @@ import { HealthModule } from './health/health.module';
             ],
             migrations: ['dist/migrations/*.js'],
             migrationsRun: true,
-            synchronize: true,  // Temporarily enabled to sync missing columns
+            synchronize: false,
           };
         }
         // Fallback for traditional individual credentials
@@ -227,7 +227,7 @@ import { HealthModule } from './health/health.module';
           ],
           migrations: ['dist/migrations/*.js'],
           migrationsRun: true,
-          synchronize: true,  // Temporarily enabled to sync missing columns
+          synchronize: false,
         };
       },
     }),

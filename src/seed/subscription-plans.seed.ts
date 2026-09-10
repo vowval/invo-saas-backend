@@ -10,11 +10,6 @@ export async function seedSubscriptionPlans(
 ) {
   const planRepo = dataSource.getRepository(SubscriptionPlan);
 
-  // Remove old plans to avoid conflicts
-  await planRepo.delete({ id: 'BASIC' });
-  await planRepo.delete({ id: 'PRO' });
-  await planRepo.delete({ id: 'ENTERPRISE' });
-
   const plans = [
     {
       id: 'FREE',
@@ -85,3 +80,4 @@ export async function seedSubscriptionPlans(
 
   console.log('\n✓ Subscription Plans seeding complete!');
 }
+

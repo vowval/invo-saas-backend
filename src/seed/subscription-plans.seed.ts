@@ -10,24 +10,29 @@ export async function seedSubscriptionPlans(
 ) {
   const planRepo = dataSource.getRepository(SubscriptionPlan);
 
+  // Remove old plans to avoid conflicts
+  await planRepo.delete({ id: 'BASIC' });
+  await planRepo.delete({ id: 'PRO' });
+  await planRepo.delete({ id: 'ENTERPRISE' });
+
   const plans = [
     {
       id: 'FREE',
-      name: 'Free Plan',
-      description: 'Perfect for solo fabric processors getting started',
+      name: 'Free',
+      description: 'Perfect for solo fabric processors getting started. 1 Admin user only.',
       maxUsers: 1,
       invoiceLimit: 10,
-      billingCycle: 'MONTHLY',
+      billingCycle: 'LIFETIME',
       priceInr: 0,
       durationMonths: null,
       requiresPayment: false,
       active: true,
     },
     {
-      id: 'BASIC',
-      name: 'Basic Plan',
-      description: 'For small textile factories with a small team',
-      maxUsers: 5,
+      id: 'MONTHLY',
+      name: 'Monthly',
+      description: 'For small textile factories. 1 Admin + 1 Staff member.',
+      maxUsers: 2,
       invoiceLimit: 100,
       billingCycle: 'MONTHLY',
       priceInr: 4999,
@@ -36,25 +41,25 @@ export async function seedSubscriptionPlans(
       active: true,
     },
     {
-      id: 'PRO',
-      name: 'Professional Plan',
-      description: 'For growing medium-sized textile factories',
-      maxUsers: 20,
+      id: 'YEARLY',
+      name: 'Yearly',
+      description: 'For growing textile factories. 1 Admin + 5 Staff members.',
+      maxUsers: 6,
       invoiceLimit: 500,
-      billingCycle: 'MONTHLY',
-      priceInr: 14999,
-      durationMonths: 1,
+      billingCycle: 'YEARLY',
+      priceInr: 49999,
+      durationMonths: 12,
       requiresPayment: true,
       active: true,
     },
     {
-      id: 'ENTERPRISE',
-      name: 'Enterprise Plan',
-      description: 'For large-scale textile processing operations',
+      id: 'LIFETIME',
+      name: 'Lifetime',
+      description: 'For large-scale operations. Unlimited users and invoices, one-time payment.',
       maxUsers: 1000,
       invoiceLimit: null,
-      billingCycle: 'CUSTOM',
-      priceInr: 0,
+      billingCycle: 'LIFETIME',
+      priceInr: 199999,
       durationMonths: null,
       requiresPayment: true,
       active: true,

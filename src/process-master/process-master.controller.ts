@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ProcessMasterService } from './process-master.service';
 import {
   CreateProcessCategoryDto,
@@ -11,6 +11,15 @@ import {
   DuplicateProcessDto,
   ReorderProcessesDto,
 } from './dto/process.dto';
+
+// TODO: Implement proper JWT guard
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+interface UserRequest {
+  userId: string;
+  factoryId?: string | null;
+  role: 'super-admin' | 'factory-admin' | 'factory-user';
+}
 
 @Controller('api/admin/process-master')
 export class ProcessMasterController {
@@ -119,5 +128,39 @@ export class ProcessMasterController {
       categoryId,
       activeOnly !== 'false',
     );
+  }
+
+  // ============= FACTORY ADMIN ENDPOINTS =============
+
+  /**
+   * Clone a global process for factory customization
+   * POST /api/admin/process-master/processes/:processId/clone?factoryId=<factory-id>
+   * 
+   * Only factory admins can use this endpoint
+   */
+  @Post('processes/:processId/clone')
+  @HttpCode(HttpStatus.CREATED)
+  // @UseGuards(JwtAuthGuard)
+  async cloneProcessForFactory(
+    @Param('processId') processId: string,
+    @Query('factoryId') factoryId: string,
+    @Req() req: any,
+  ) {
+    const user = this.extractUserContext(req);
+    return this.processMasterService.cloneProcessForFactory(processId, factoryId, user);
+  }
+
+  /**
+   * Helper to extract user context from request
+   * TODO: Replace with actual JWT token parsing when authentication is implemented
+   */
+  private extractUserContext(req: any): UserRequest {
+    // For now, return a mock super-admin context
+    // In production, this should parse the JWT token and extract real user data
+    return {
+      userId: req.user?.id || 'mock-user-id',
+      factoryId: req.user?.factoryId || null,
+      role: req.user?.role || 'super-admin',
+    };
   }
 }

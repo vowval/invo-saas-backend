@@ -1,5 +1,5 @@
-import { ProcessCategory } from '../process-master/process-category.entity';
-import { Process } from '../process-master/process.entity';
+import { ProcessCategory } from '../process-master/entities/process-category.entity';
+import { Process } from '../process-master/entities/process.entity';
 import { DataSource } from 'typeorm';
 
 export const seedProcessMaster = async (dataSource: DataSource) => {

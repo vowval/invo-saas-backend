@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProcessCategory } from './process-category.entity';
-import { Process } from './process.entity';
+import { ProcessCategory } from './entities/process-category.entity';
+import { Process } from './entities/process.entity';
+import { ProcessParameterService } from './process-parameter.service';
 import {
   CreateProcessCategoryDto,
   UpdateProcessCategoryDto,
@@ -15,6 +16,12 @@ import {
   ReorderProcessesDto,
 } from './dto/process.dto';
 
+interface UserContext {
+  userId: string;
+  factoryId?: string | null;
+  role: 'super-admin' | 'factory-admin' | 'factory-user';
+}
+
 @Injectable()
 export class ProcessMasterService {
   constructor(
@@ -22,6 +29,7 @@ export class ProcessMasterService {
     private categoryRepository: Repository<ProcessCategory>,
     @InjectRepository(Process)
     private processRepository: Repository<Process>,
+    private parameterService: ProcessParameterService,
   ) {}
 
   // ============= PROCESS CATEGORIES =============
@@ -324,5 +332,84 @@ export class ProcessMasterService {
     qb.addOrderBy('process.name', 'ASC');
 
     return qb.getMany();
+  }
+
+  // ============= PROCESS CLONING =============
+
+  /**
+   * Clone a global process for factory customization
+   * 
+   * When a factory wants to customize a process, they clone it.
+   * The cloned process:
+   * - Has factory_id set to the factory's ID
+   * - Has cloned_from_process_id pointing to the global process
+   * - Auto-inherits all global process parameters
+   * - Can then customize/override parameters
+   */
+  async cloneProcessForFactory(
+    globalProcessId: string,
+    factoryId: string,
+    user: UserContext,
+  ) {
+    // Only factory admins can clone processes for their factory
+    if (user.role !== 'factory-admin') {
+      throw new ForbiddenException('Only factory admins can clone processes');
+    }
+
+    if (!user.factoryId || user.factoryId !== factoryId) {
+      throw new ForbiddenException('You can only clone processes for your own factory');
+    }
+
+    // Get the global process
+    const globalProcess = await this.processRepository.findOne({
+      where: { id: globalProcessId, factory_id: null },
+    });
+
+    if (!globalProcess) {
+      throw new NotFoundException(`Global process with ID ${globalProcessId} not found`);
+    }
+
+    // Check if factory already has a clone of this process
+    const existingClone = await this.processRepository.findOne({
+      where: {
+        cloned_from_process_id: globalProcessId,
+        factory_id: factoryId,
+      },
+    });
+
+    if (existingClone) {
+      throw new BadRequestException(
+        `Your factory already has a clone of this process (${existingClone.process_code})`,
+      );
+    }
+
+    // Create a new factory-specific process
+    const clonedProcess = this.processRepository.create({
+      category_id: globalProcess.category_id,
+      name: `${globalProcess.name} (${factoryId.substring(0, 8)})`,
+      process_code: `${globalProcess.process_code}-${Date.now().toString().slice(-4)}`,
+      description: `Customized clone of ${globalProcess.name}`,
+      process_family: globalProcess.process_family,
+      process_type: globalProcess.process_type,
+      is_active: true,
+      is_system_default: false,
+      display_order: globalProcess.display_order,
+      factory_id: factoryId,
+      cloned_from_process_id: globalProcessId,
+    });
+
+    const savedProcess = await this.processRepository.save(clonedProcess);
+
+    // Auto-clone all parameters from the global process
+    await this.parameterService.cloneParametersForFactory(
+      globalProcessId,
+      savedProcess.id,
+      factoryId,
+    );
+
+    return {
+      process: savedProcess,
+      message: `Process cloned successfully. You can now customize the parameters.`,
+    };
   }
 }

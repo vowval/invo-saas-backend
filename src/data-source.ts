@@ -22,8 +22,9 @@ import { LabDipSample } from './lab-dip/lab-dip-sample.entity';
 import { QcInspection } from './quality-control/qc-inspection.entity';
 import { Payment } from './payments/payment.entity';
 import { BatchCost } from './costing/batch-cost.entity';
-import { ProcessCategory } from './process-master/process-category.entity';
-import { Process } from './process-master/process.entity';
+import { ProcessCategory } from './process-master/entities/process-category.entity';
+import { Process } from './process-master/entities/process.entity';
+import { ProcessParameter } from './process-master/entities/process-parameter.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -33,7 +34,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD, // 👈 now guaranteed string
   database: process.env.DB_NAME,
 
-  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process],
+  entities: [User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });

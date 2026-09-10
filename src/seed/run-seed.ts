@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { seedSuperAdmin } from './super-admin.seed';
 import { seedProcessMaster } from './process-master.seed';
+import { seedProcessParameters } from './process-parameters.seed';
 import { User } from '../users/user.entity';
 import { Company } from '../companies/company.entity';
 import { Product } from '../products/product.entity';
@@ -22,8 +23,9 @@ import { LabDipSample } from '../lab-dip/lab-dip-sample.entity';
 import { QcInspection } from '../quality-control/qc-inspection.entity';
 import { Payment } from '../payments/payment.entity';
 import { BatchCost } from '../costing/batch-cost.entity';
-import { ProcessCategory } from '../process-master/process-category.entity';
-import { Process } from '../process-master/process.entity';
+import { ProcessCategory } from '../process-master/entities/process-category.entity';
+import { Process } from '../process-master/entities/process.entity';
+import { ProcessParameter } from '../process-master/entities/process-parameter.entity';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -55,6 +57,7 @@ const dataSource = new DataSource({
     BatchCost,
     ProcessCategory,
     Process,
+    ProcessParameter,
   ],
   synchronize: false,
 });
@@ -65,6 +68,9 @@ async function run() {
     console.log('Running seeds...\n');
     
     await seedProcessMaster(dataSource);
+    console.log('');
+    
+    await seedProcessParameters(dataSource);
     console.log('');
     
     await seedSuperAdmin(dataSource);

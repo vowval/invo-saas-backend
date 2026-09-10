@@ -55,6 +55,30 @@ import { DyeingExecutionModule } from './dyeing-execution/dyeing-execution.modul
 import { DyeingBatch } from './dyeing-execution/dyeing-batch.entity';
 import { DyeingBatchAudit } from './dyeing-execution/dyeing-batch-audit.entity';
 import { DyeingProcessEvent, DyeingChemicalConsumption, DyeingDyeConsumption, DyeingQCResult } from './dyeing-execution/dyeing-process-event.entity';
+import { DryingExecutionModule } from './drying-execution/drying-execution.module';
+import { DryingBatch } from './drying-execution/drying-batch.entity';
+import { DryingBatchAudit } from './drying-execution/drying-batch-audit.entity';
+import { FinishingExecutionModule } from './finishing-execution/finishing-execution.module';
+import { FinishingBatch } from './finishing-execution/finishing-batch.entity';
+import { FinishingBatchAudit } from './finishing-execution/finishing-batch-audit.entity';
+import { QcCheckTemplate } from './quality-control/qc-check-template.entity';
+import { QcExecution } from './quality-control/qc-execution.entity';
+import { QcResult } from './quality-control/qc-result.entity';
+import { QcAudit } from './quality-control/qc-audit.entity';
+import { ReprocessingModule } from './reprocessing/reprocessing.module';
+import { PackingModule } from './packing/packing.module';
+import { DeliveryModule } from './delivery/delivery.module';
+import { ReprocessRequest } from './reprocessing/reprocess-request.entity';
+import { ReprocessCycle } from './reprocessing/reprocess-cycle.entity';
+import { ReprocessStepHistory } from './reprocessing/reprocess-step-history.entity';
+import { ReprocessAudit } from './reprocessing/reprocess-audit.entity';
+import { Packing } from './packing/packing.entity';
+import { PackingRoll } from './packing/packing-roll.entity';
+import { PackingAudit } from './packing/packing-audit.entity';
+import { Delivery } from './delivery/delivery.entity';
+import { DeliveryPackage } from './delivery/delivery-package.entity';
+import { DeliveryAudit } from './delivery/delivery-audit.entity';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -110,6 +134,24 @@ import { DyeingProcessEvent, DyeingChemicalConsumption, DyeingDyeConsumption, Dy
           DyeingChemicalConsumption,
           DyeingDyeConsumption,
           DyeingQCResult,
+          DryingBatch,
+          DryingBatchAudit,
+          FinishingBatch,
+          FinishingBatchAudit,
+          QcCheckTemplate,
+          QcExecution,
+          QcResult,
+          QcAudit,
+          ReprocessRequest,
+          ReprocessCycle,
+          ReprocessStepHistory,
+          ReprocessAudit,
+          Packing,
+          PackingRoll,
+          PackingAudit,
+          Delivery,
+          DeliveryPackage,
+          DeliveryAudit,
         ],
         migrations: ['dist/migrations/*.js'],
         migrationsRun: true,
@@ -136,6 +178,12 @@ import { DyeingProcessEvent, DyeingChemicalConsumption, DyeingDyeConsumption, Dy
     ProcessRouteModule,
     WashingExecutionModule,
     DyeingExecutionModule,
+    DryingExecutionModule,
+    FinishingExecutionModule,
+    ReprocessingModule,
+    PackingModule,
+    DeliveryModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

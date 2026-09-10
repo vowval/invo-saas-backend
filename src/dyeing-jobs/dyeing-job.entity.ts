@@ -13,6 +13,7 @@ export enum DyeingJobStatus {
   IN_PROCESS = 'IN_PROCESS',
   READY_FOR_DELIVERY = 'READY_FOR_DELIVERY',
   DELIVERED = 'DELIVERED',
+  READY_FOR_INVOICE = 'READY_FOR_INVOICE',
 }
 
 // Ordered end-to-end workflow, shown on the production board.
@@ -106,6 +107,18 @@ export class DyeingJob {
 
   @Column({ nullable: true })
   processNotes: string;
+
+  /**
+   * Invoice tracking fields for production-to-invoice handoff
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  readyForInvoiceAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  invoicedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  invoiceId: string;
 
   @ManyToOne(() => Company, { onDelete: 'CASCADE' })
   company: Company;

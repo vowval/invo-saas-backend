@@ -145,6 +145,10 @@ export class InvoiceService {
     const prefix = company.invoicePrefix || 'INV';
     const invoiceNo = `${prefix}-${String(invoiceNumber).padStart(5, '0')}`;
     company.invoiceNextNumber = invoiceNumber + 1;
+
+    // Get the primary job from the first invoice item
+    const primaryJob = items[0].dyeingJob;
+
     const invoice = this.invoiceRepo.create({
       invoiceNo,
       buyerName: text(data.buyerName, 'Customer name', { required: true, max: 150 }),
@@ -154,6 +158,13 @@ export class InvoiceService {
       invoiceDate: date(data.invoiceDate, 'Invoice date'),
       orderNo: text(data.orderNo, 'Order number', { max: 50 }),
       placeOfSupply: text(data.placeOfSupply, 'Place of supply', { required: true, max: 100 }),
+
+      // Link to primary job
+      job: primaryJob,
+      customerReference: text(data.customerReference, 'Customer reference', { max: 100 }),
+      processingDescription: text(data.processingDescription, 'Processing description', { max: 500 }),
+      deliveryReference: text(data.deliveryReference, 'Delivery reference', { max: 100 }),
+      deliveryDate: data.deliveryDate ? date(data.deliveryDate, 'Delivery date', false) : null,
 
       totalAmount: Number(totalAmount.toFixed(2)),
       gstRate,
@@ -168,9 +179,18 @@ export class InvoiceService {
 
     const savedInvoice = await this.invoiceRepo.save(invoice);
     const invoicedJobs = new Map(items.map(item => [item.dyeingJob.id, item.dyeingJob]));
+    
+    // Track invoice creation in job
     await Promise.all(
       Array.from(invoicedJobs.values()).map(job => {
         job.trackingStatus = TrackingStatus.GST_INVOICE;
+        
+        // Set invoice tracking fields (only on first invoice)
+        if (!job.invoicedAt) {
+          job.invoicedAt = new Date();
+          job.invoiceId = savedInvoice.id;
+        }
+        
         return this.jobRepo.save(job);
       }),
     );

@@ -1,0 +1,305 @@
+
+> invoice-backend@1.0.0 migration:run
+> npm run typeorm -- migration:run -d src/data-source.ts
+
+
+> invoice-backend@1.0.0 typeorm
+> typeorm-ts-node-commonjs migration:run -d src/data-source.ts
+
+[90m[4mquery:[24m[39m [94mSELECT[0m [95mversion[0m[37m([0m[37m)[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [95mcurrent_schema[0m[37m([0m[37m)[0m
+[90m[4mquery:[24m[39m [94mCREATE[0m [37mEXTENSION[0m [94mIF[0m [94mNOT[0m [94mEXISTS[0m [37m"uuid-ossp"[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [37m"information_schema"[0m[37m.[0m[37m"tables"[0m [94mWHERE[0m [37m"table_schema"[0m [37m=[0m [37m'public'[0m [94mAND[0m [37m"table_name"[0m [37m=[0m [37m'migrations'[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [37m"migrations"[0m [37m"migrations"[0m [94mORDER BY[0m [37m"id"[0m [94mDESC[0m
+[4m22 migrations are already loaded in the database.[24m
+[4m27 migrations were found in the source code.[24m
+[4mCreateDyeingExecution1789080000000 is the last executed migration. It was executed on Fri Sep 11 2026 04:10:00 GMT+0530 (India Standard Time).[24m
+[4m8 migrations are new migrations must be executed.[24m
+[90m[4mquery:[24m[39m [37mSTART[0m [37mTRANSACTION[0m
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mdrying_process_type[0m [94mAS[0m [95mENUM[0m [37m([0m
+        [37m'HYDRO_EXTRACTION'[0m[37m,[0m
+        [37m'TUMBLE_DRY'[0m[37m,[0m
+        [37m'NATURAL_DRY'[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mdrying_batch_status[0m [94mAS[0m [95mENUM[0m [37m([0m
+        [37m'PENDING'[0m[37m,[0m
+        [37m'IN_PROGRESS'[0m[37m,[0m
+        [37m'PAUSED'[0m[37m,[0m
+        [37m'COMPLETED'[0m[37m,[0m
+        [37m'ON_HOLD'[0m[37m,[0m
+        [37m'REJECTED'[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE TABLE[0m [95mdrying_batches[0m [37m([0m
+        [37mid[0m [37mUUID[0m [94mPRIMARY KEY[0m [94mDEFAULT[0m [95mgen_random_uuid[0m[37m([0m[37m)[0m[37m,[0m
+        [37mcompanyId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mjobId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mprocessId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mrouteStepId[0m [37mUUID[0m[37m,[0m
+        [37mbatchNumber[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37mprocessType[0m [37mdrying_process_type[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m'HYDRO_EXTRACTION'[0m[37m,[0m
+        [37mstatus[0m [37mdrying_batch_status[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m'PENDING'[0m[37m,[0m
+        [37mmachineId[0m [94mVARCHAR[0m[37m([0m[32m100[0m[37m)[0m[37m,[0m
+        [37mmachineCode[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37mrecipeId[0m [94mVARCHAR[0m[37m([0m[32m100[0m[37m)[0m[37m,[0m
+        [37mrecipeName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mrecipeVersion[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37moperatorId[0m [37mUUID[0m[37m,[0m
+        [37moperatorName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mshift[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37minputQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37moutputQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m[37m,[0m
+        [37mlossQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m[37m,[0m
+        [37mlossPercentage[0m [95mNUMERIC[0m[37m([0m[32m5[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37muom[0m [94mVARCHAR[0m[37m([0m[32m20[0m[37m)[0m[37m,[0m
+        [37mstartedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mcompletedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mpausedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mdurationMinutes[0m [95mNUMERIC[0m[37m([0m[32m10[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37mactualParameters[0m [37mJSONB[0m[37m,[0m
+        [37mtargetParameters[0m [37mJSONB[0m[37m,[0m
+        [37mremarks[0m [94mTEXT[0m[37m,[0m
+        [37mqualityNotes[0m [94mTEXT[0m[37m,[0m
+        [37msupervisorOverride[0m [37mBOOLEAN[0m [94mDEFAULT[0m [94mfalse[0m[37m,[0m
+        [37msupervisorId[0m [37mUUID[0m[37m,[0m
+        [37msupervisorOverrideReason[0m [94mTEXT[0m[37m,[0m
+        [37msupervisorOverrideAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mcreatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [37mupdatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [37mcreatedBy[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mupdatedBy[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE UNIQUE INDEX[0m [37midx_drying_batches_company_number[0m
+      [94mON[0m [95mdrying_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mbatchNumber[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batches_company_job[0m
+      [94mON[0m [95mdrying_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mjobId[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batches_company_status[0m
+      [94mON[0m [95mdrying_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mstatus[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batches_company_type[0m
+      [94mON[0m [95mdrying_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mprocessType[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batches_created[0m
+      [94mON[0m [95mdrying_batches[0m[37m([0m[37mcreatedAt[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE TABLE[0m [95mdrying_batch_audit[0m [37m([0m
+        [37mid[0m [37mUUID[0m [94mPRIMARY KEY[0m [94mDEFAULT[0m [95mgen_random_uuid[0m[37m([0m[37m)[0m[37m,[0m
+        [37mcompanyId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mbatchId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37maction[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37mpreviousValues[0m [94mTEXT[0m[37m,[0m
+        [37mnewValues[0m [94mTEXT[0m[37m,[0m
+        [37mreason[0m [94mTEXT[0m[37m,[0m
+        [37muserId[0m [37mUUID[0m[37m,[0m
+        [37muserName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mcreatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [94mCONSTRAINT[0m [37mfk_drying_batch_audit_batch[0m [94mFOREIGN KEY[0m [37m([0m[37mbatchId[0m[37m)[0m
+          [94mREFERENCES[0m [95mdrying_batches[0m[37m([0m[37mid[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batch_audit_company_batch[0m
+      [94mON[0m [95mdrying_batch_audit[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mbatchId[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_drying_batch_audit_company_created[0m
+      [94mON[0m [95mdrying_batch_audit[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mcreatedAt[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m [94mINSERT INTO[0m [37m"migrations"[0m[37m([0m[37m"timestamp"[0m[37m,[0m [37m"name"[0m[37m)[0m [94mVALUES[0m [37m([0m[37m$[0m[32m1[0m[37m,[0m [37m$[0m[32m2[0m[37m)[0m [90m-- PARAMETERS: [1789090000000,"CreateDryingExecution1789090000000"][0m
+[4mMigration CreateDryingExecution1789090000000 has been executed successfully.[24m
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mfinishing_process_type[0m [94mAS[0m [95mENUM[0m [37m([0m
+        [37m'SOFTENER'[0m[37m,[0m
+        [37m'SILICON_SOFTENER'[0m[37m,[0m
+        [37m'STENTER'[0m[37m,[0m
+        [37m'COMPACTING'[0m[37m,[0m
+        [37m'SANFORIZING'[0m[37m,[0m
+        [37m'CALENDARING'[0m[37m,[0m
+        [37m'BRUSHING'[0m[37m,[0m
+        [37m'ANTI_PILLING'[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mfinishing_batch_status[0m [94mAS[0m [95mENUM[0m [37m([0m
+        [37m'PENDING'[0m[37m,[0m
+        [37m'IN_PROGRESS'[0m[37m,[0m
+        [37m'PAUSED'[0m[37m,[0m
+        [37m'COMPLETED'[0m[37m,[0m
+        [37m'ON_HOLD'[0m[37m,[0m
+        [37m'REJECTED'[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE TABLE[0m [95mfinishing_batches[0m [37m([0m
+        [37mid[0m [37mUUID[0m [94mPRIMARY KEY[0m [94mDEFAULT[0m [95mgen_random_uuid[0m[37m([0m[37m)[0m[37m,[0m
+        [37mcompanyId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mjobId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mprocessId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mrouteStepId[0m [37mUUID[0m[37m,[0m
+        [37mbatchNumber[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37mprocessType[0m [37mfinishing_process_type[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m'SOFTENER'[0m[37m,[0m
+        [37mstatus[0m [37mfinishing_batch_status[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m'PENDING'[0m[37m,[0m
+        [37mmachineId[0m [94mVARCHAR[0m[37m([0m[32m100[0m[37m)[0m[37m,[0m
+        [37mmachineCode[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37mrecipeId[0m [94mVARCHAR[0m[37m([0m[32m100[0m[37m)[0m[37m,[0m
+        [37mrecipeName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mrecipeVersion[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37moperatorId[0m [37mUUID[0m[37m,[0m
+        [37moperatorName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mshift[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m[37m,[0m
+        [37minputQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37moutputQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m[37m,[0m
+        [37mlossQuantity[0m [95mNUMERIC[0m[37m([0m[32m12[0m[37m,[0m [32m3[0m[37m)[0m[37m,[0m
+        [37mlossPercentage[0m [95mNUMERIC[0m[37m([0m[32m5[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37muom[0m [94mVARCHAR[0m[37m([0m[32m20[0m[37m)[0m[37m,[0m
+        [37mstartedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mcompletedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mpausedAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mdurationMinutes[0m [95mNUMERIC[0m[37m([0m[32m10[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37mactualParameters[0m [37mJSONB[0m[37m,[0m
+        [37mtargetParameters[0m [37mJSONB[0m[37m,[0m
+        [37mremarks[0m [94mTEXT[0m[37m,[0m
+        [37mqualityNotes[0m [94mTEXT[0m[37m,[0m
+        [37mfinalWidth[0m [95mNUMERIC[0m[37m([0m[32m8[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37mfinalShrinkage[0m [95mNUMERIC[0m[37m([0m[32m5[0m[37m,[0m [32m2[0m[37m)[0m[37m,[0m
+        [37msupervisorOverride[0m [37mBOOLEAN[0m [94mDEFAULT[0m [94mfalse[0m[37m,[0m
+        [37msupervisorId[0m [37mUUID[0m[37m,[0m
+        [37msupervisorOverrideReason[0m [94mTEXT[0m[37m,[0m
+        [37msupervisorOverrideAt[0m [94mTIMESTAMP[0m[37m,[0m
+        [37mcreatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [37mupdatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [37mcreatedBy[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mupdatedBy[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE UNIQUE INDEX[0m [37midx_finishing_batches_company_number[0m
+      [94mON[0m [95mfinishing_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mbatchNumber[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batches_company_job[0m
+      [94mON[0m [95mfinishing_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mjobId[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batches_company_status[0m
+      [94mON[0m [95mfinishing_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mstatus[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batches_company_type[0m
+      [94mON[0m [95mfinishing_batches[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mprocessType[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batches_created[0m
+      [94mON[0m [95mfinishing_batches[0m[37m([0m[37mcreatedAt[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE TABLE[0m [95mfinishing_batch_audit[0m [37m([0m
+        [37mid[0m [37mUUID[0m [94mPRIMARY KEY[0m [94mDEFAULT[0m [95mgen_random_uuid[0m[37m([0m[37m)[0m[37m,[0m
+        [37mcompanyId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37mbatchId[0m [37mUUID[0m [94mNOT NULL[0m[37m,[0m
+        [37maction[0m [94mVARCHAR[0m[37m([0m[32m50[0m[37m)[0m [94mNOT NULL[0m[37m,[0m
+        [37mpreviousValues[0m [94mTEXT[0m[37m,[0m
+        [37mnewValues[0m [94mTEXT[0m[37m,[0m
+        [37mreason[0m [94mTEXT[0m[37m,[0m
+        [37muserId[0m [37mUUID[0m[37m,[0m
+        [37muserName[0m [94mVARCHAR[0m[37m([0m[32m255[0m[37m)[0m[37m,[0m
+        [37mcreatedAt[0m [94mTIMESTAMP[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m
+        [94mCONSTRAINT[0m [37mfk_finishing_batch_audit_batch[0m [94mFOREIGN KEY[0m [37m([0m[37mbatchId[0m[37m)[0m
+          [94mREFERENCES[0m [95mfinishing_batches[0m[37m([0m[37mid[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m
+      [37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batch_audit_company_batch[0m
+      [94mON[0m [95mfinishing_batch_audit[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mbatchId[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE INDEX[0m [37midx_finishing_batch_audit_company_created[0m
+      [94mON[0m [95mfinishing_batch_audit[0m[37m([0m[37mcompanyId[0m[37m,[0m [37mcreatedAt[0m[37m)[0m
+    
+[90m[4mquery:[24m[39m [94mINSERT INTO[0m [37m"migrations"[0m[37m([0m[37m"timestamp"[0m[37m,[0m [37m"name"[0m[37m)[0m [94mVALUES[0m [37m([0m[37m$[0m[32m1[0m[37m,[0m [37m$[0m[32m2[0m[37m)[0m [90m-- PARAMETERS: [1789100000000,"CreateFinishingExecution1789100000000"][0m
+[4mMigration CreateFinishingExecution1789100000000 has been executed successfully.[24m
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mqc_check_type_enum[0m [94mAS[0m [95mENUM[0m [37m([0m[37m'NUMERIC'[0m[37m,[0m [37m'ENUM'[0m[37m,[0m [37m'BOOLEAN'[0m[37m,[0m [37m'TEXT'[0m[37m)[0m[37m;[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mqc_execution_status_enum[0m [94mAS[0m [95mENUM[0m [37m([0m[37m'PENDING'[0m[37m,[0m [37m'IN_PROGRESS'[0m[37m,[0m [37m'COMPLETED'[0m[37m,[0m [37m'ON_HOLD'[0m[37m)[0m[37m;[0m
+    
+[90m[4mquery:[24m[39m 
+      [94mCREATE[0m [37mTYPE[0m [37mqc_overall_result_enum[0m [94mAS[0m [95mENUM[0m [37m([0m[37m'PASS'[0m[37m,[0m [37m'FAIL'[0m[37m,[0m [37m'HOLD'[0m[37m)[0m[37m;[0m
+    
+[90m[4mquery:[24m[39m [94mCREATE TABLE[0m [37m"qc_check_templates"[0m [37m([0m[37m"id"[0m [37muuid[0m [94mNOT NULL[0m [94mDEFAULT[0m [95muuid_generate_v4[0m[37m([0m[37m)[0m[37m,[0m [37m"company_id"[0m [37muuid[0m [94mNOT NULL[0m[37m,[0m [37m"name"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"description"[0m [94mtext[0m [94mNOT NULL[0m[37m,[0m [37m"check_type"[0m [37mqc_check_type_enum[0m [94mNOT NULL[0m[37m,[0m [37m"weight"[0m [95mnumeric[0m[37m([0m[32m3[0m[37m,[0m[32m1[0m[37m)[0m [94mNOT NULL[0m [94mDEFAULT[0m [32m1[0m[37m,[0m [37m"configuration"[0m [37mjsonb[0m[37m,[0m [37m"is_active"[0m [37mboolean[0m [94mNOT NULL[0m [94mDEFAULT[0m [94mtrue[0m[37m,[0m [37m"is_system_default"[0m [37mboolean[0m [94mNOT NULL[0m [94mDEFAULT[0m [94mfalse[0m[37m,[0m [37m"display_order"[0m [37mint[0m [94mNOT NULL[0m [94mDEFAULT[0m [32m0[0m[37m,[0m [37m"created_at"[0m [94mtimestamp[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m [37m"updated_at"[0m [94mtimestamp[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m [94mCONSTRAINT[0m [37m"FK_5adfdeb10d8eceec25d43ef6079"[0m [94mFOREIGN KEY[0m [37m([0m[37m"company_id"[0m[37m)[0m [94mREFERENCES[0m [37m"companies"[0m [37m([0m[37m"id"[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m[37m,[0m [94mCONSTRAINT[0m [37m"PK_1284db17b3099699a711f61b136"[0m [94mPRIMARY KEY[0m [37m([0m[37m"id"[0m[37m)[0m[37m)[0m
+[4m[31mquery failed:[39m[24m [94mCREATE TABLE[0m [37m"qc_check_templates"[0m [37m([0m[37m"id"[0m [37muuid[0m [94mNOT NULL[0m [94mDEFAULT[0m [95muuid_generate_v4[0m[37m([0m[37m)[0m[37m,[0m [37m"company_id"[0m [37muuid[0m [94mNOT NULL[0m[37m,[0m [37m"name"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"description"[0m [94mtext[0m [94mNOT NULL[0m[37m,[0m [37m"check_type"[0m [37mqc_check_type_enum[0m [94mNOT NULL[0m[37m,[0m [37m"weight"[0m [95mnumeric[0m[37m([0m[32m3[0m[37m,[0m[32m1[0m[37m)[0m [94mNOT NULL[0m [94mDEFAULT[0m [32m1[0m[37m,[0m [37m"configuration"[0m [37mjsonb[0m[37m,[0m [37m"is_active"[0m [37mboolean[0m [94mNOT NULL[0m [94mDEFAULT[0m [94mtrue[0m[37m,[0m [37m"is_system_default"[0m [37mboolean[0m [94mNOT NULL[0m [94mDEFAULT[0m [94mfalse[0m[37m,[0m [37m"display_order"[0m [37mint[0m [94mNOT NULL[0m [94mDEFAULT[0m [32m0[0m[37m,[0m [37m"created_at"[0m [94mtimestamp[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m [37m"updated_at"[0m [94mtimestamp[0m [94mNOT NULL[0m [94mDEFAULT[0m [37mCURRENT_TIMESTAMP[0m[37m,[0m [94mCONSTRAINT[0m [37m"FK_5adfdeb10d8eceec25d43ef6079"[0m [94mFOREIGN KEY[0m [37m([0m[37m"company_id"[0m[37m)[0m [94mREFERENCES[0m [37m"companies"[0m [37m([0m[37m"id"[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m[37m,[0m [94mCONSTRAINT[0m [37m"PK_1284db17b3099699a711f61b136"[0m [94mPRIMARY KEY[0m [37m([0m[37m"id"[0m[37m)[0m[37m)[0m
+[4m[31merror:[39m[24m error: relation "companies" does not exist
+[4mMigration "CreateQcTables1789105000000" failed, error: relation "companies" does not exist[24m
+[90m[4mquery:[24m[39m [37mROLLBACK[0m
+[30m[41mError during migration run:[49m[39m
+QueryFailedError: relation "companies" does not exist
+    at PostgresQueryRunner.query (/home/jagman/Projects/invo-saas/backend/node_modules/typeorm/src/driver/postgres/PostgresQueryRunner.ts:325:19)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async PostgresQueryRunner.executeQueries (/home/jagman/Projects/invo-saas/backend/node_modules/src/query-runner/BaseQueryRunner.ts:681:13)
+    at async PostgresQueryRunner.createTable (/home/jagman/Projects/invo-saas/backend/node_modules/typeorm/src/driver/postgres/PostgresQueryRunner.ts:616:9)
+    at async CreateQcTables1789105000000.up (/home/jagman/Projects/invo-saas/backend/src/migrations/1789105000000-CreateQcTables.ts:21:5)
+    at async MigrationExecutor.executePendingMigrations (/home/jagman/Projects/invo-saas/backend/node_modules/src/migration/MigrationExecutor.ts:336:17)
+    at async DataSource.runMigrations (/home/jagman/Projects/invo-saas/backend/node_modules/src/data-source/DataSource.ts:404:13)
+    at async Object.handler (/home/jagman/Projects/invo-saas/backend/node_modules/src/commands/MigrationRunCommand.ts:76:13) {
+  query: 'CREATE TABLE "qc_check_templates" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "company_id" uuid NOT NULL, "name" varchar NOT NULL, "description" text NOT NULL, "check_type" qc_check_type_enum NOT NULL, "weight" numeric(3,1) NOT NULL DEFAULT 1, "configuration" jsonb, "is_active" boolean NOT NULL DEFAULT true, "is_system_default" boolean NOT NULL DEFAULT false, "display_order" int NOT NULL DEFAULT 0, "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "FK_5adfdeb10d8eceec25d43ef6079" FOREIGN KEY ("company_id") REFERENCES "companies" ("id") ON DELETE CASCADE, CONSTRAINT "PK_1284db17b3099699a711f61b136" PRIMARY KEY ("id"))',
+  parameters: undefined,
+  driverError: error: relation "companies" does not exist
+      at /home/jagman/Projects/invo-saas/backend/node_modules/pg/lib/client.js:545:17
+      at processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async PostgresQueryRunner.query (/home/jagman/Projects/invo-saas/backend/node_modules/typeorm/src/driver/postgres/PostgresQueryRunner.ts:254:25)
+      at async PostgresQueryRunner.executeQueries (/home/jagman/Projects/invo-saas/backend/node_modules/src/query-runner/BaseQueryRunner.ts:681:13)
+      at async PostgresQueryRunner.createTable (/home/jagman/Projects/invo-saas/backend/node_modules/typeorm/src/driver/postgres/PostgresQueryRunner.ts:616:9)
+      at async CreateQcTables1789105000000.up (/home/jagman/Projects/invo-saas/backend/src/migrations/1789105000000-CreateQcTables.ts:21:5)
+      at async MigrationExecutor.executePendingMigrations (/home/jagman/Projects/invo-saas/backend/node_modules/src/migration/MigrationExecutor.ts:336:17)
+      at async DataSource.runMigrations (/home/jagman/Projects/invo-saas/backend/node_modules/src/data-source/DataSource.ts:404:13)
+      at async Object.handler (/home/jagman/Projects/invo-saas/backend/node_modules/src/commands/MigrationRunCommand.ts:76:13) {
+    length: 107,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'namespace.c',
+    line: '637',
+    routine: 'RangeVarGetRelidExtended'
+  },
+  length: 107,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'namespace.c',
+  line: '637',
+  routine: 'RangeVarGetRelidExtended'
+}

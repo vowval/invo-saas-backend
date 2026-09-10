@@ -31,6 +31,11 @@ export class DyeingJobController {
     return this.jobService.findActive(req.user.companyId);
   }
 
+  /**
+   * @deprecated Use /api/dashboard/* endpoints instead
+   * This endpoint remains for backward compatibility only.
+   * Use /api/dashboard/overview, /api/dashboard/pipeline, /api/dashboard/alerts/* for new implementations.
+   */
   @Get('status-board')
   getStatusBoard(@Req() req: any) {
     return this.jobService.getStatusBoard(req.user.companyId);

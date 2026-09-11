@@ -19,7 +19,7 @@ import {
 interface UserContext {
   userId: string;
   factoryId?: string | null;
-  role: 'super-admin' | 'factory-admin' | 'factory-user';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF';
 }
 
 @Injectable()
@@ -124,12 +124,14 @@ export class ProcessMasterService {
 
   // ============= PROCESSES =============
 
-  async getAllProcesses(categoryId?: string, includeInactive: boolean = false) {
+  async getAllProcesses(categoryId?: string, includeInactive: boolean = false, user?: UserContext) {
     const query = this.processRepository.createQueryBuilder('process')
       .leftJoinAndSelect('process.category', 'category');
 
+    this.applyFactoryScope(query, user);
+
     if (categoryId) {
-      query.where('process.category_id = :categoryId', { categoryId });
+      query.andWhere('process.category_id = :categoryId', { categoryId });
     }
 
     if (!includeInactive) {
@@ -142,7 +144,7 @@ export class ProcessMasterService {
     return query.getMany();
   }
 
-  async getProcessesByCategory(categoryId: string, includeInactive: boolean = false) {
+  async getProcessesByCategory(categoryId: string, includeInactive: boolean = false, user?: UserContext) {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -154,6 +156,8 @@ export class ProcessMasterService {
     const query = this.processRepository.createQueryBuilder('process')
       .where('process.category_id = :categoryId', { categoryId });
 
+    this.applyFactoryScope(query, user);
+
     if (!includeInactive) {
       query.andWhere('process.is_active = :isActive', { isActive: true });
     }
@@ -162,6 +166,28 @@ export class ProcessMasterService {
     query.addOrderBy('process.name', 'ASC');
 
     return query.getMany();
+  }
+
+  /**
+   * Restrict process visibility per tenant:
+   * - Super admin manages the global process master (factory_id IS NULL only).
+   * - Factory admin/staff see global processes plus their own factory's clones,
+   *   never another factory's customized processes.
+   */
+  private applyFactoryScope(query: ReturnType<Repository<Process>['createQueryBuilder']>, user?: UserContext) {
+    if (!user) {
+      return;
+    }
+
+    if (user.role === 'SUPER_ADMIN') {
+      query.andWhere('process.factory_id IS NULL');
+    } else if (user.factoryId) {
+      query.andWhere('(process.factory_id IS NULL OR process.factory_id = :factoryId)', {
+        factoryId: user.factoryId,
+      });
+    } else {
+      query.andWhere('process.factory_id IS NULL');
+    }
   }
 
   async createProcess(dto: CreateProcessDto) {
@@ -309,12 +335,14 @@ export class ProcessMasterService {
 
   // ============= SEARCH & FILTER =============
 
-  async searchProcesses(query: string, categoryId?: string, activeOnly: boolean = true) {
+  async searchProcesses(query: string, categoryId?: string, activeOnly: boolean = true, user?: UserContext) {
     const qb = this.processRepository.createQueryBuilder('process')
       .leftJoinAndSelect('process.category', 'category');
 
+    this.applyFactoryScope(qb, user);
+
     if (query) {
-      qb.where(
+      qb.andWhere(
         '(process.name ILIKE :query OR process.process_code ILIKE :query OR process.description ILIKE :query)',
         { query: `%${query}%` },
       );
@@ -352,7 +380,7 @@ export class ProcessMasterService {
     user: UserContext,
   ) {
     // Only factory admins can clone processes for their factory
-    if (user.role !== 'factory-admin') {
+    if (user.role !== 'ADMIN') {
       throw new ForbiddenException('Only factory admins can clone processes');
     }
 

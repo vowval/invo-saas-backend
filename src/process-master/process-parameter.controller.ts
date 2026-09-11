@@ -10,7 +10,7 @@ import {
 interface UserRequest {
   userId: string;
   factoryId?: string | null;
-  role: 'super-admin' | 'factory-admin' | 'factory-user';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF';
 }
 
 // Super Admin endpoint prefix: /api/admin/process-master/parameters
@@ -125,7 +125,7 @@ export class ProcessParameterController {
     return {
       userId: req.user.id || req.user.userId,
       factoryId: req.user.factoryId || req.user.companyId || null,
-      role: req.user.role || 'factory-user',
+      role: req.user.role || 'STAFF',
     };
   }
 }

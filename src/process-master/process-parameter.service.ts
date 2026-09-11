@@ -12,7 +12,7 @@ import {
 interface UserContext {
   userId: string;
   factoryId?: string | null;
-  role: 'super-admin' | 'factory-admin' | 'factory-user';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF';
 }
 
 @Injectable()
@@ -30,7 +30,7 @@ export class ProcessParameterService {
    * Factory-admin can access their factory_id or factory_id=null (inherited from global)
    */
   private canAccessParameter(parameter: ProcessParameter, user: UserContext): boolean {
-    if (user.role === 'super-admin') {
+    if (user.role === 'SUPER_ADMIN') {
       // Super admin can only access global parameters (factory_id = null)
       return parameter.factory_id === null;
     }
@@ -48,7 +48,7 @@ export class ProcessParameterService {
    * Only the owner factory can modify (not global parameters)
    */
   private canModifyParameter(parameter: ProcessParameter, user: UserContext): boolean {
-    if (user.role === 'super-admin') {
+    if (user.role === 'SUPER_ADMIN') {
       // Super admin can only modify global parameters
       return parameter.factory_id === null;
     }
@@ -72,7 +72,7 @@ export class ProcessParameterService {
     let whereClause: any = { process_id: processId };
 
     if (user) {
-      if (user.role === 'super-admin') {
+      if (user.role === 'SUPER_ADMIN') {
         // Super admin sees only global parameters
         whereClause.factory_id = null;
       } else if (user.factoryId) {
@@ -102,12 +102,12 @@ export class ProcessParameterService {
 
     // Determine factory_id based on user role
     let factoryId = null;
-    if (user.role === 'factory-admin' || user.role === 'factory-user') {
+    if (user.role === 'ADMIN' || user.role === 'STAFF') {
       if (!user.factoryId) {
         throw new ForbiddenException('Factory ID required for factory admin');
       }
       factoryId = user.factoryId;
-    } else if (user.role !== 'super-admin') {
+    } else if (user.role !== 'SUPER_ADMIN') {
       throw new ForbiddenException('Insufficient permissions to create parameters');
     }
 
@@ -259,12 +259,12 @@ export class ProcessParameterService {
 
     // Determine factory_id based on user role
     let factoryId = null;
-    if (user.role === 'factory-admin' || user.role === 'factory-user') {
+    if (user.role === 'ADMIN' || user.role === 'STAFF') {
       if (!user.factoryId) {
         throw new ForbiddenException('Factory ID required for factory admin');
       }
       factoryId = user.factoryId;
-    } else if (user.role !== 'super-admin') {
+    } else if (user.role !== 'SUPER_ADMIN') {
       throw new ForbiddenException('Insufficient permissions to create parameters');
     }
 

@@ -1,23 +1,9 @@
-
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-//   await app.listen(3000);
-// }
-// bootstrap();
-
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Parse cookies from requests
-  app.use(cookieParser());
 
   app.use((_req: unknown, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -42,4 +28,11 @@ async function bootstrap() {
 
   await app.listen(port);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  // Log the real startup error instead of letting it surface as an
+  // opaque, unhandled crash on every request.
+  // eslint-disable-next-line no-console
+  console.error('Fatal error during application bootstrap:', err);
+  process.exit(1);
+});

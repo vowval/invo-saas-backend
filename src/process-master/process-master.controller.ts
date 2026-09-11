@@ -19,11 +19,14 @@ import {
 interface UserRequest {
   userId: string;
   factoryId?: string | null;
-  role: 'super-admin' | 'factory-admin' | 'factory-user';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF';
 }
 
+// All endpoints require authentication. Read endpoints (GET) are open to any
+// authenticated role so factory admins/staff can browse the process master to
+// build production routes. Mutating endpoints that change the *global* master
+// data are explicitly restricted to SUPER_ADMIN via method-level @Roles().
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.SUPER_ADMIN)
 @Controller('api/admin/process-master')
 export class ProcessMasterController {
   constructor(private readonly processMasterService: ProcessMasterService) {}
@@ -41,12 +44,14 @@ export class ProcessMasterController {
   }
 
   @Post('categories')
+  @Roles(Role.SUPER_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async createCategory(@Body() dto: CreateProcessCategoryDto) {
     return this.processMasterService.createCategory(dto);
   }
 
   @Put('categories/:id')
+  @Roles(Role.SUPER_ADMIN)
   async updateCategory(
     @Param('id') categoryId: string,
     @Body() dto: UpdateProcessCategoryDto,
@@ -55,11 +60,13 @@ export class ProcessMasterController {
   }
 
   @Put('categories/toggle-active/:id')
+  @Roles(Role.SUPER_ADMIN)
   async toggleCategoryActive(@Param('id') categoryId: string) {
     return this.processMasterService.toggleCategoryActive(categoryId);
   }
 
   @Post('categories/reorder')
+  @Roles(Role.SUPER_ADMIN)
   async reorderCategories(@Body() dto: ReorderCategoriesDto) {
     return this.processMasterService.reorderCategories(dto);
   }
@@ -70,10 +77,12 @@ export class ProcessMasterController {
   async getAllProcesses(
     @Query('categoryId') categoryId?: string,
     @Query('includeInactive') includeInactive?: string,
+    @Req() req?: any,
   ) {
     return this.processMasterService.getAllProcesses(
       categoryId,
       includeInactive === 'true',
+      this.extractUserContext(req),
     );
   }
 
@@ -81,30 +90,36 @@ export class ProcessMasterController {
   async getProcessesByCategory(
     @Param('categoryId') categoryId: string,
     @Query('includeInactive') includeInactive?: string,
+    @Req() req?: any,
   ) {
     return this.processMasterService.getProcessesByCategory(
       categoryId,
       includeInactive === 'true',
+      this.extractUserContext(req),
     );
   }
 
   @Post('processes')
+  @Roles(Role.SUPER_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async createProcess(@Body() dto: CreateProcessDto) {
     return this.processMasterService.createProcess(dto);
   }
 
   @Put('processes/:id')
+  @Roles(Role.SUPER_ADMIN)
   async updateProcess(@Param('id') processId: string, @Body() dto: UpdateProcessDto) {
     return this.processMasterService.updateProcess(processId, dto);
   }
 
   @Put('processes/toggle-active/:id')
+  @Roles(Role.SUPER_ADMIN)
   async toggleProcessActive(@Param('id') processId: string) {
     return this.processMasterService.toggleProcessActive(processId);
   }
 
   @Post('processes/:id/duplicate')
+  @Roles(Role.SUPER_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async duplicateProcess(
     @Param('id') processId: string,
@@ -114,6 +129,7 @@ export class ProcessMasterController {
   }
 
   @Post('processes/reorder')
+  @Roles(Role.SUPER_ADMIN)
   async reorderProcesses(@Body() dto: ReorderProcessesDto) {
     return this.processMasterService.reorderProcesses(dto);
   }
@@ -125,11 +141,13 @@ export class ProcessMasterController {
     @Query('q') query: string,
     @Query('categoryId') categoryId?: string,
     @Query('activeOnly') activeOnly?: string,
+    @Req() req?: any,
   ) {
     return this.processMasterService.searchProcesses(
       query,
       categoryId,
       activeOnly !== 'false',
+      this.extractUserContext(req),
     );
   }
 
@@ -142,6 +160,7 @@ export class ProcessMasterController {
    * Only factory admins can use this endpoint
    */
   @Post('processes/:processId/clone')
+  @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async cloneProcessForFactory(
     @Param('processId') processId: string,
@@ -161,7 +180,7 @@ export class ProcessMasterController {
     return {
       userId: req.user?.id || req.user?.userId,
       factoryId: req.user?.companyId || req.user?.factoryId || null,
-      role: req.user?.role || 'factory-user',
+      role: req.user?.role || 'STAFF',
     };
   }
 }

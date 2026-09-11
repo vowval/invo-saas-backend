@@ -153,11 +153,14 @@ export class FabricReceivingService {
       lots: [],
     });
 
+    // Save receipt first
+    const savedReceipt = await this.receiptRepository.save(receipt);
+
     // Create lots with rolls
     const savedLots: ReceiptLot[] = [];
     for (const lotDto of dto.lots) {
       const lot = this.lotRepository.create({
-        receipt,
+        receipt: savedReceipt,
         lotNumber: lotDto.lotNumber,
         numberOfRolls: lotDto.rolls.length,
         totalWeight: lotDto.rolls.reduce((sum, roll) => sum + roll.weight, 0),
@@ -184,9 +187,6 @@ export class FabricReceivingService {
       savedLot.rolls = savedRolls;
       savedLots.push(savedLot);
     }
-
-    receipt.lots = savedLots;
-    const savedReceipt = await this.receiptRepository.save(receipt);
 
     return { job: savedJob, receipt: savedReceipt };
   }

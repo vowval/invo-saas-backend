@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, Request, Query, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { FabricReceivingService, CreateFabricReceiptDto } from './fabric-receiving.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -13,8 +13,29 @@ export class FabricReceivingController {
    */
   @Post('receipt')
   async createReceipt(@Request() req, @Body() dto: CreateFabricReceiptDto) {
-    const companyId = req.user.companyId;
-    return this.service.createFabricReceipt(companyId, dto);
+    try {
+      const companyId = req.user.companyId;
+      if (!companyId) {
+        throw new BadRequestException('Company ID not found in user token');
+      }
+      
+      console.log('Creating fabric receipt with data:', {
+        companyId,
+        customerName: dto.customerName,
+        lotsCount: dto.lots?.length,
+        netWeight: dto.netWeight,
+      });
+
+      const result = await this.service.createFabricReceipt(companyId, dto);
+      
+      console.log('Fabric receipt created successfully:', result.receipt.id);
+      return result;
+    } catch (error) {
+      console.error('Error creating fabric receipt:', error);
+      throw new InternalServerErrorException(
+        `Failed to create fabric receipt: ${error.message || error}`,
+      );
+    }
   }
 
   /**

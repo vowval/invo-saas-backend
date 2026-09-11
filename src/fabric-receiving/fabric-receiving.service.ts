@@ -84,111 +84,127 @@ export class FabricReceivingService {
     companyId: string,
     dto: CreateFabricReceiptDto,
   ): Promise<{ job: DyeingJob; receipt: FabricReceipt }> {
-    const company = await this.companyRepository.findOne({ where: { id: companyId } });
-    if (!company) {
-      throw new NotFoundException('Company not found');
-    }
-
-    // Validate data
-    if (dto.lots.length === 0) {
-      throw new BadRequestException('At least one lot is required');
-    }
-
-    // Calculate total weight from all lots
-    let totalWeight = 0;
-    for (const lot of dto.lots) {
-      for (const roll of lot.rolls) {
-        totalWeight += roll.weight;
+    try {
+      console.log('Step 1: Finding company with ID:', companyId);
+      const company = await this.companyRepository.findOne({ where: { id: companyId } });
+      if (!company) {
+        throw new NotFoundException('Company not found');
       }
-    }
+      console.log('Step 1 ✓: Company found:', company.id);
 
-    // Verify weight consistency
-    if (Math.abs(totalWeight - dto.netWeight) > 0.1) {
-      throw new BadRequestException(
-        `Total roll weight (${totalWeight}) does not match net weight (${dto.netWeight})`,
-      );
-    }
+      // Validate data
+      if (dto.lots.length === 0) {
+        throw new BadRequestException('At least one lot is required');
+      }
 
-    // Generate job number
-    const jobNo = await this.generateJobNumber(companyId);
+      // Calculate total weight from all lots
+      let totalWeight = 0;
+      for (const lot of dto.lots) {
+        for (const roll of lot.rolls) {
+          totalWeight += roll.weight;
+        }
+      }
 
-    // Create Job
-    const job = this.jobRepository.create({
-      jobNo,
-      customerName: dto.customerName,
-      fabricType: dto.fabricType,
-      colour: dto.colour,
-      unit: dto.uom,
-      quantityReceived: dto.netWeight, // INITIAL RECEIVED QUANTITY - IMMUTABLE
-      quantityDelivered: 0,
-      partyDcNo: dto.customerDcNumber,
-      receivedDate: new Date(dto.receiptDate),
-      status: DyeingJobStatus.RECEIVED,
-      trackingStatus: TrackingStatus.FABRIC_RECEIVED,
-      company,
-    });
+      // Verify weight consistency
+      if (Math.abs(totalWeight - dto.netWeight) > 0.1) {
+        throw new BadRequestException(
+          `Total roll weight (${totalWeight}) does not match net weight (${dto.netWeight})`,
+        );
+      }
 
-    const savedJob = await this.jobRepository.save(job);
+      // Generate job number
+      console.log('Step 2: Generating job number');
+      const jobNo = await this.generateJobNumber(companyId);
+      console.log('Step 2 ✓: Job number generated:', jobNo);
 
-    // Create FabricReceipt
-    const receipt = this.receiptRepository.create({
-      job: savedJob,
-      customerDcNumber: dto.customerDcNumber,
-      customerReference: dto.customerReference,
-      receiptDate: new Date(dto.receiptDate),
-      vehicleNumber: dto.vehicleNumber,
-      transporter: dto.transporter,
-      fabricType: dto.fabricType,
-      fabricConstruction: dto.fabricConstruction,
-      composition: dto.composition,
-      colour: dto.colour,
-      grossWeight: dto.grossWeight,
-      tareWeight: dto.tareWeight,
-      netWeight: dto.netWeight,
-      uom: dto.uom,
-      receivedBy: dto.receivedBy,
-      remarks: dto.remarks,
-      attachmentPaths: dto.attachmentPaths,
-      company,
-      lots: [],
-    });
-
-    // Save receipt first
-    const savedReceipt = await this.receiptRepository.save(receipt);
-
-    // Create lots with rolls
-    const savedLots: ReceiptLot[] = [];
-    for (const lotDto of dto.lots) {
-      const lot = this.lotRepository.create({
-        receipt: savedReceipt,
-        lotNumber: lotDto.lotNumber,
-        numberOfRolls: lotDto.rolls.length,
-        totalWeight: lotDto.rolls.reduce((sum, roll) => sum + roll.weight, 0),
-        uom: dto.uom,
-        rolls: [],
+      // Create Job
+      console.log('Step 3: Creating DyeingJob');
+      const job = this.jobRepository.create({
+        jobNo,
+        customerName: dto.customerName,
+        fabricType: dto.fabricType,
+        colour: dto.colour,
+        unit: dto.uom,
+        quantityReceived: dto.netWeight, // INITIAL RECEIVED QUANTITY - IMMUTABLE
+        quantityDelivered: 0,
+        partyDcNo: dto.customerDcNumber,
+        receivedDate: new Date(dto.receiptDate),
+        status: DyeingJobStatus.RECEIVED,
+        trackingStatus: TrackingStatus.FABRIC_RECEIVED,
+        company,
       });
 
-      const savedLot = await this.lotRepository.save(lot);
+      const savedJob = await this.jobRepository.save(job);
+      console.log('Step 3 ✓: DyeingJob saved:', savedJob.id);
 
-      // Create rolls
-      const savedRolls: ReceiptRoll[] = [];
-      for (const rollDto of lotDto.rolls) {
-        const roll = this.rollRepository.create({
-          lot: savedLot,
-          rollNumber: rollDto.rollNumber,
-          weight: rollDto.weight,
+      // Create FabricReceipt
+      console.log('Step 4: Creating FabricReceipt');
+      const receipt = this.receiptRepository.create({
+        job: savedJob,
+        customerDcNumber: dto.customerDcNumber,
+        customerReference: dto.customerReference,
+        receiptDate: new Date(dto.receiptDate),
+        vehicleNumber: dto.vehicleNumber,
+        transporter: dto.transporter,
+        fabricType: dto.fabricType,
+        fabricConstruction: dto.fabricConstruction,
+        composition: dto.composition,
+        colour: dto.colour,
+        grossWeight: dto.grossWeight,
+        tareWeight: dto.tareWeight,
+        netWeight: dto.netWeight,
+        uom: dto.uom,
+        receivedBy: dto.receivedBy,
+        remarks: dto.remarks,
+        attachmentPaths: dto.attachmentPaths,
+        company,
+        lots: [],
+      });
+
+      // Save receipt first
+      const savedReceipt = await this.receiptRepository.save(receipt);
+      console.log('Step 4 ✓: FabricReceipt saved:', savedReceipt.id);
+
+      // Create lots with rolls
+      console.log('Step 5: Creating lots and rolls');
+      const savedLots: ReceiptLot[] = [];
+      for (const lotDto of dto.lots) {
+        const lot = this.lotRepository.create({
+          receipt: savedReceipt,
+          lotNumber: lotDto.lotNumber,
+          numberOfRolls: lotDto.rolls.length,
+          totalWeight: lotDto.rolls.reduce((sum, roll) => sum + roll.weight, 0),
           uom: dto.uom,
-          isActive: true,
+          rolls: [],
         });
-        const savedRoll = await this.rollRepository.save(roll);
-        savedRolls.push(savedRoll);
+
+        const savedLot = await this.lotRepository.save(lot);
+
+        // Create rolls
+        const savedRolls: ReceiptRoll[] = [];
+        for (const rollDto of lotDto.rolls) {
+          const roll = this.rollRepository.create({
+            lot: savedLot,
+            rollNumber: rollDto.rollNumber,
+            weight: rollDto.weight,
+            uom: dto.uom,
+            isActive: true,
+          });
+          const savedRoll = await this.rollRepository.save(roll);
+          savedRolls.push(savedRoll);
+        }
+
+        savedLot.rolls = savedRolls;
+        savedLots.push(savedLot);
       }
+      console.log('Step 5 ✓: Lots and rolls created');
 
-      savedLot.rolls = savedRolls;
-      savedLots.push(savedLot);
+      console.log('✅ Fabric receipt creation completed successfully');
+      return { job: savedJob, receipt: savedReceipt };
+    } catch (error) {
+      console.error('❌ Error in createFabricReceipt:', error);
+      throw error;
     }
-
-    return { job: savedJob, receipt: savedReceipt };
   }
 
   /**

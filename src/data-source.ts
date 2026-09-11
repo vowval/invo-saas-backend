@@ -46,5 +46,6 @@ export const AppDataSource = new DataSource({
     WashingBatch, WashingBatchAudit, DyeingBatch, DyeingBatchAudit, DyeingProcessEvent, FinishingBatch, FinishingBatchAudit, DryingBatch, DryingBatchAudit
   ],
   migrations: ['src/migrations/*.ts'],
+  migrationsRun: true,
   synchronize: false,
 });

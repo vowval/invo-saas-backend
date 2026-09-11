@@ -36,6 +36,11 @@ import { FinishingBatch } from './finishing-execution/finishing-batch.entity';
 import { FinishingBatchAudit } from './finishing-execution/finishing-batch-audit.entity';
 import { DryingBatch } from './drying-execution/drying-batch.entity';
 import { DryingBatchAudit } from './drying-execution/drying-batch-audit.entity';
+import { FabricReceipt } from './fabric-receiving/fabric-receipt.entity';
+import { ReceiptLot } from './fabric-receiving/receipt-lot.entity';
+import { ReceiptRoll } from './fabric-receiving/receipt-roll.entity';
+import { FabricInspection } from './fabric-receiving/fabric-inspection.entity';
+import { InspectionCheckpoint } from './fabric-receiving/inspection-checkpoint.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -43,7 +48,8 @@ export const AppDataSource = new DataSource({
   entities: [
     User, Company, Product, Invoice, InvoiceItem, DyeingJob, ProcessStage, GoodsReceiptNote, SubscriptionPlan, Machine, Batch, ChemicalItem, StockTransaction, Recipe, RecipeIngredient, LabDip, LabDipSample, QcInspection, Payment, BatchCost, ProcessCategory, Process, ProcessParameter,
     ProcessRoute, ProcessRouteStep,
-    WashingBatch, WashingBatchAudit, DyeingBatch, DyeingBatchAudit, DyeingProcessEvent, FinishingBatch, FinishingBatchAudit, DryingBatch, DryingBatchAudit
+    WashingBatch, WashingBatchAudit, DyeingBatch, DyeingBatchAudit, DyeingProcessEvent, FinishingBatch, FinishingBatchAudit, DryingBatch, DryingBatchAudit,
+    FabricReceipt, ReceiptLot, ReceiptRoll, FabricInspection, InspectionCheckpoint
   ],
   migrations: ['src/migrations/*.ts'],
   migrationsRun: true,

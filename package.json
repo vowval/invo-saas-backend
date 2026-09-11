@@ -6,7 +6,6 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "build": "nest build",
-    
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:generate": "npm run typeorm -- migration:generate -d src/data-source.ts",
@@ -23,6 +22,7 @@
     "@nestjs/platform-express": "^10.4.20",
     "@nestjs/typeorm": "^10.0.0",
     "bcrypt": "^5.1.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.0",
     "passport": "^0.6.0",
@@ -33,8 +33,8 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@types/passport-jwt": "^4.0.1",
     "@nestjs/cli": "^10.0.0",
+    "@types/passport-jwt": "^4.0.1",
     "@types/pdfkit": "^0.17.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

@@ -11,9 +11,13 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Parse cookies from requests
+  app.use(cookieParser());
 
   app.use((_req: unknown, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');

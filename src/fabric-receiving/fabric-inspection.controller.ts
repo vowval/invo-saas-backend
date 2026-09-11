@@ -7,10 +7,13 @@ import {
   Param,
   BadRequestException,
   Req,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FabricInspectionService } from './fabric-inspection.service';
 import { InspectionResult } from './fabric-inspection.entity';
 
+@UseGuards(JwtAuthGuard)
 @Controller('fabric-receiving/inspection')
 export class FabricInspectionController {
   constructor(private readonly inspectionService: FabricInspectionService) {}

@@ -62,12 +62,19 @@ export class WashingExecutionService {
     });
     if (!job) throw new NotFoundException('Job not found');
 
-    // Verify route step exists
+    // Verify route step exists and belongs to user's company by joining through job/route
     let routeStep = null;
     if (routeStepId) {
       routeStep = await this.routeStepRepo.findOne({
-        where: { id: routeStepId },
+        where: {
+          id: routeStepId,
+          route: { job: { company: { id: companyId } } },
+        },
+        relations: ['route', 'route.job'],
       });
+      if (!routeStep) {
+        throw new NotFoundException('Route step not found or access denied');
+      }
     }
 
     // Validate input quantity

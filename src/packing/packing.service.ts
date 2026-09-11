@@ -25,6 +25,7 @@ export class PackingService {
   /**
    * Creates packing record for a job
    * Can only be created after QC PASS
+   * Validates job belongs to user's company
    */
   async createPacking(data: {
     jobId: string;
@@ -35,9 +36,13 @@ export class PackingService {
     labels?: string;
     remarks?: string;
     userId: string;
+    companyId: string;
   }): Promise<Packing> {
-    const job = await this.jobRepo.findOne({ where: { id: data.jobId } });
-    if (!job) throw new Error(`Job ${data.jobId} not found`);
+    // Validate job exists and belongs to user's company
+    const job = await this.jobRepo.findOne({
+      where: { id: data.jobId, company: { id: data.companyId } },
+    });
+    if (!job) throw new Error(`Job ${data.jobId} not found or access denied`);
 
     const user = await this.userRepo.findOne({ where: { id: data.userId } });
 
@@ -76,11 +81,13 @@ export class PackingService {
   async startPacking(data: {
     packingId: string;
     userId: string;
+    companyId: string;
   }): Promise<Packing> {
     const packing = await this.packingRepo.findOne({
-      where: { id: data.packingId },
+      where: { id: data.packingId, job: { company: { id: data.companyId } } },
+      relations: ['job'],
     });
-    if (!packing) throw new Error(`Packing ${data.packingId} not found`);
+    if (!packing) throw new Error(`Packing ${data.packingId} not found or access denied`);
 
     if (!packing.canStart()) {
       throw new Error(`Cannot start packing with status ${packing.status}`);
@@ -112,11 +119,13 @@ export class PackingService {
     weight: number;
     remarks?: string;
     userId: string;
+    companyId: string;
   }): Promise<PackingRoll> {
     const packing = await this.packingRepo.findOne({
-      where: { id: data.packingId },
+      where: { id: data.packingId, job: { company: { id: data.companyId } } },
+      relations: ['job'],
     });
-    if (!packing) throw new Error(`Packing ${data.packingId} not found`);
+    if (!packing) throw new Error(`Packing ${data.packingId} not found or access denied`);
 
     if (!packing.isInProgress()) {
       throw new Error(`Cannot add roll - packing not in progress`);
@@ -138,12 +147,13 @@ export class PackingService {
   async completePacking(data: {
     packingId: string;
     userId: string;
+    companyId: string;
   }): Promise<Packing> {
     const packing = await this.packingRepo.findOne({
-      where: { id: data.packingId },
-      relations: ['rolls'],
+      where: { id: data.packingId, job: { company: { id: data.companyId } } },
+      relations: ['rolls', 'job'],
     });
-    if (!packing) throw new Error(`Packing ${data.packingId} not found`);
+    if (!packing) throw new Error(`Packing ${data.packingId} not found or access denied`);
 
     if (!packing.canComplete()) {
       throw new Error(
@@ -190,11 +200,13 @@ export class PackingService {
     packingId: string;
     reason: string;
     userId: string;
+    companyId: string;
   }): Promise<Packing> {
     const packing = await this.packingRepo.findOne({
-      where: { id: data.packingId },
+      where: { id: data.packingId, job: { company: { id: data.companyId } } },
+      relations: ['job'],
     });
-    if (!packing) throw new Error(`Packing ${data.packingId} not found`);
+    if (!packing) throw new Error(`Packing ${data.packingId} not found or access denied`);
 
     if (!packing.canHold()) {
       throw new Error(`Cannot hold packing with status ${packing.status}`);
@@ -222,21 +234,21 @@ export class PackingService {
   /**
    * Get packing details
    */
-  async getPacking(packingId: string): Promise<Packing> {
+  async getPacking(packingId: string, companyId: string): Promise<Packing> {
     const packing = await this.packingRepo.findOne({
-      where: { id: packingId },
+      where: { id: packingId, job: { company: { id: companyId } } },
       relations: ['job', 'rolls', 'auditTrail'],
     });
-    if (!packing) throw new Error(`Packing ${packingId} not found`);
+    if (!packing) throw new Error(`Packing ${packingId} not found or access denied`);
     return packing;
   }
 
   /**
    * Get packing by job
    */
-  async getPackingByJob(jobId: string): Promise<Packing | null> {
+  async getPackingByJob(jobId: string, companyId: string): Promise<Packing | null> {
     return await this.packingRepo.findOne({
-      where: { job: { id: jobId } },
+      where: { job: { id: jobId, company: { id: companyId } } },
       relations: ['rolls'],
     });
   }

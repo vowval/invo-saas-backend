@@ -81,12 +81,19 @@ export class DyeingExecutionService {
     });
     if (!recipe) throw new NotFoundException('Recipe not found');
 
-    // Verify route step if provided
+    // Verify route step if provided and belongs to user's company
     let routeStep = null;
     if (routeStepId) {
       routeStep = await this.routeStepRepo.findOne({
-        where: { id: routeStepId },
+        where: {
+          id: routeStepId,
+          route: { job: { company: { id: companyId } } },
+        },
+        relations: ['route', 'route.job'],
       });
+      if (!routeStep) {
+        throw new NotFoundException('Route step not found or access denied');
+      }
     }
 
     // Validate input quantity

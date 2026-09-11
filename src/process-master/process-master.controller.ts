@@ -1,4 +1,8 @@
-import { Controller, Get, Post, Put, Body, Param, Query, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, HttpCode, HttpStatus, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/role.enum';
 import { ProcessMasterService } from './process-master.service';
 import {
   CreateProcessCategoryDto,
@@ -12,15 +16,14 @@ import {
   ReorderProcessesDto,
 } from './dto/process.dto';
 
-// TODO: Implement proper JWT guard
-// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
 interface UserRequest {
   userId: string;
   factoryId?: string | null;
   role: 'super-admin' | 'factory-admin' | 'factory-user';
 }
 
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.SUPER_ADMIN)
 @Controller('api/admin/process-master')
 export class ProcessMasterController {
   constructor(private readonly processMasterService: ProcessMasterService) {}
@@ -140,7 +143,6 @@ export class ProcessMasterController {
    */
   @Post('processes/:processId/clone')
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JwtAuthGuard)
   async cloneProcessForFactory(
     @Param('processId') processId: string,
     @Query('factoryId') factoryId: string,
@@ -152,15 +154,14 @@ export class ProcessMasterController {
 
   /**
    * Helper to extract user context from request
-   * TODO: Replace with actual JWT token parsing when authentication is implemented
+   * Parses JWT token from authenticated request
    */
   private extractUserContext(req: any): UserRequest {
-    // For now, return a mock super-admin context
-    // In production, this should parse the JWT token and extract real user data
+    // Extract from authenticated JWT payload
     return {
-      userId: req.user?.id || 'mock-user-id',
-      factoryId: req.user?.factoryId || null,
-      role: req.user?.role || 'super-admin',
+      userId: req.user?.id || req.user?.userId,
+      factoryId: req.user?.companyId || req.user?.factoryId || null,
+      role: req.user?.role || 'factory-user',
     };
   }
 }

@@ -182,11 +182,14 @@ export class ReadyForInvoiceService {
   /**
    * Record READY_FOR_INVOICE timestamp on job
    * Called when job transitions to READY_FOR_INVOICE status
+   * Validates job belongs to user's company
    */
-  async recordReadyForInvoiceTimestamp(jobId: string): Promise<DyeingJob> {
-    const job = await this.jobRepo.findOne({ where: { id: jobId } });
+  async recordReadyForInvoiceTimestamp(jobId: string, companyId: string): Promise<DyeingJob> {
+    const job = await this.jobRepo.findOne({
+      where: { id: jobId, company: { id: companyId } },
+    });
     if (!job) {
-      throw new NotFoundException(`Job ${jobId} not found`);
+      throw new NotFoundException(`Job ${jobId} not found or access denied`);
     }
 
     if (!job.readyForInvoiceAt) {

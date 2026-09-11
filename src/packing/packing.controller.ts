@@ -38,6 +38,7 @@ export class PackingController {
       labels: body.labels,
       remarks: body.remarks,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -53,6 +54,7 @@ export class PackingController {
     return this.packingService.startPacking({
       packingId,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -76,6 +78,7 @@ export class PackingController {
       weight: body.weight,
       remarks: body.remarks,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -91,6 +94,7 @@ export class PackingController {
     return this.packingService.completePacking({
       packingId,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -112,6 +116,7 @@ export class PackingController {
       packingId,
       reason: body.reason,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -120,8 +125,11 @@ export class PackingController {
    * Get packing details
    */
   @Get(':packingId')
-  async getPacking(@Param('packingId') packingId: string) {
-    return this.packingService.getPacking(packingId);
+  async getPacking(
+    @Param('packingId') packingId: string,
+    @Req() req: any,
+  ) {
+    return this.packingService.getPacking(packingId, req.user.companyId);
   }
 
   /**
@@ -129,7 +137,10 @@ export class PackingController {
    * Get packing for a job
    */
   @Get('job/:jobId')
-  async getPackingByJob(@Param('jobId') jobId: string) {
-    return this.packingService.getPackingByJob(jobId);
+  async getPackingByJob(
+    @Param('jobId') jobId: string,
+    @Req() req: any,
+  ) {
+    return this.packingService.getPackingByJob(jobId, req.user.companyId);
   }
 }

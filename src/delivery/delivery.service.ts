@@ -28,6 +28,7 @@ export class DeliveryService {
   /**
    * Creates delivery record after packing completion
    * Delivery quantity cannot exceed packed quantity
+   * Validates job belongs to user's company
    */
   async createDelivery(data: {
     jobId: string;
@@ -39,15 +40,19 @@ export class DeliveryService {
     destination?: string;
     remarks?: string;
     userId: string;
+    companyId: string;
     supervisorOverride?: boolean;
     overrideReason?: string;
   }): Promise<Delivery> {
-    const job = await this.jobRepo.findOne({ where: { id: data.jobId } });
-    if (!job) throw new Error(`Job ${data.jobId} not found`);
+    // Validate job exists and belongs to user's company
+    const job = await this.jobRepo.findOne({
+      where: { id: data.jobId, company: { id: data.companyId } },
+    });
+    if (!job) throw new Error(`Job ${data.jobId} not found or access denied`);
 
     // Validate delivery quantity doesn't exceed packed quantity
     const packing = await this.packingRepo.findOne({
-      where: { job: { id: data.jobId } },
+      where: { job: { id: data.jobId, company: { id: data.companyId } } },
     });
 
     if (!packing) {
@@ -103,11 +108,13 @@ export class DeliveryService {
   async startDelivery(data: {
     deliveryId: string;
     userId: string;
+    companyId: string;
   }): Promise<Delivery> {
     const delivery = await this.deliveryRepo.findOne({
-      where: { id: data.deliveryId },
+      where: { id: data.deliveryId, job: { company: { id: data.companyId } } },
+      relations: ['job'],
     });
-    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found`);
+    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found or access denied`);
 
     if (!delivery.canStart()) {
       throw new Error(`Cannot start delivery with status ${delivery.status}`);
@@ -142,11 +149,13 @@ export class DeliveryService {
     weight: number;
     rolls?: string;
     remarks?: string;
+    companyId: string;
   }): Promise<DeliveryPackage> {
     const delivery = await this.deliveryRepo.findOne({
-      where: { id: data.deliveryId },
+      where: { id: data.deliveryId, job: { company: { id: data.companyId } } },
+      relations: ['job'],
     });
-    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found`);
+    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found or access denied`);
 
     const pkg = this.pkgRepo.create({
       delivery,
@@ -166,12 +175,13 @@ export class DeliveryService {
   async completeDelivery(data: {
     deliveryId: string;
     userId: string;
+    companyId: string;
   }): Promise<Delivery> {
     const delivery = await this.deliveryRepo.findOne({
-      where: { id: data.deliveryId },
+      where: { id: data.deliveryId, job: { company: { id: data.companyId } } },
       relations: ['job'],
     });
-    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found`);
+    if (!delivery) throw new Error(`Delivery ${data.deliveryId} not found or access denied`);
 
     if (!delivery.canComplete()) {
       throw new Error(
@@ -206,9 +216,9 @@ export class DeliveryService {
    * Check if job is ready for invoice
    * Auto-transitions job to READY_FOR_INVOICE if all conditions met
    */
-  async checkAndTransitionToReadyForInvoice(jobId: string): Promise<boolean> {
+  async checkAndTransitionToReadyForInvoice(jobId: string, companyId: string): Promise<boolean> {
     const job = await this.jobRepo.findOne({
-      where: { id: jobId },
+      where: { id: jobId, company: { id: companyId } },
     });
 
     if (!job) return false;
@@ -220,7 +230,7 @@ export class DeliveryService {
     // 4. Delivery completed
 
     const delivery = await this.deliveryRepo.findOne({
-      where: { job: { id: jobId } },
+      where: { job: { id: jobId, company: { id: companyId } } },
     });
 
     if (job.status === 'DELIVERED' && delivery?.isCompleted()) {
@@ -236,21 +246,21 @@ export class DeliveryService {
   /**
    * Get delivery details
    */
-  async getDelivery(deliveryId: string): Promise<Delivery> {
+  async getDelivery(deliveryId: string, companyId: string): Promise<Delivery> {
     const delivery = await this.deliveryRepo.findOne({
-      where: { id: deliveryId },
+      where: { id: deliveryId, job: { company: { id: companyId } } },
       relations: ['job', 'packages', 'auditTrail'],
     });
-    if (!delivery) throw new Error(`Delivery ${deliveryId} not found`);
+    if (!delivery) throw new Error(`Delivery ${deliveryId} not found or access denied`);
     return delivery;
   }
 
   /**
    * Get delivery by job
    */
-  async getDeliveryByJob(jobId: string): Promise<Delivery | null> {
+  async getDeliveryByJob(jobId: string, companyId: string): Promise<Delivery | null> {
     return await this.deliveryRepo.findOne({
-      where: { job: { id: jobId } },
+      where: { job: { id: jobId, company: { id: companyId } } },
       relations: ['packages'],
     });
   }

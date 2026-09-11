@@ -7,9 +7,12 @@ import {
   Body,
   Param,
   Req,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProcessRouteService } from './process-route.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('process-route')
 export class ProcessRouteController {
   constructor(private readonly routeService: ProcessRouteService) {}

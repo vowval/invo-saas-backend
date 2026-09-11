@@ -1,13 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpCode, HttpStatus, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProcessParameterService } from './process-parameter.service';
 import {
   CreateProcessParameterDto,
   UpdateProcessParameterDto,
   ReorderProcessParametersDto,
 } from './dto/process-parameter.dto';
-
-// TODO: Implement proper JWT guard
-// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface UserRequest {
   userId: string;
@@ -17,6 +15,7 @@ interface UserRequest {
 
 // Super Admin endpoint prefix: /api/admin/process-master/parameters
 @Controller('api/admin/process-master/parameters')
+@UseGuards(JwtAuthGuard)
 export class ProcessParameterController {
   constructor(private readonly parameterService: ProcessParameterService) {}
 
@@ -26,7 +25,6 @@ export class ProcessParameterController {
    * Factory admin: global + their factory's parameters
    */
   @Get('process/:processId')
-  // @UseGuards(JwtAuthGuard)
   async getParametersForProcess(
     @Param('processId') processId: string,
     @Req() req: any,
@@ -39,7 +37,6 @@ export class ProcessParameterController {
    * Get a single parameter by ID
    */
   @Get(':id')
-  // @UseGuards(JwtAuthGuard)
   async getParameter(
     @Param('id') parameterId: string,
     @Req() req: any,
@@ -55,7 +52,6 @@ export class ProcessParameterController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JwtAuthGuard)
   async createParameter(
     @Body() dto: CreateProcessParameterDto,
     @Req() req: any,
@@ -69,7 +65,6 @@ export class ProcessParameterController {
    * Can only modify parameters owned by the user's role
    */
   @Put(':id')
-  // @UseGuards(JwtAuthGuard)
   async updateParameter(
     @Param('id') parameterId: string,
     @Body() dto: UpdateProcessParameterDto,
@@ -84,7 +79,6 @@ export class ProcessParameterController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(JwtAuthGuard)
   async deleteParameter(
     @Param('id') parameterId: string,
     @Req() req: any,
@@ -97,7 +91,6 @@ export class ProcessParameterController {
    * Reorder parameters for a process
    */
   @Post('reorder')
-  // @UseGuards(JwtAuthGuard)
   async reorderParameters(
     @Body() dto: ReorderProcessParametersDto,
     @Req() req: any,
@@ -111,7 +104,6 @@ export class ProcessParameterController {
    */
   @Post('process/:processId/bulk')
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JwtAuthGuard)
   async bulkCreateParameters(
     @Param('processId') processId: string,
     @Body() body: { parameters: CreateProcessParameterDto[] },
@@ -122,16 +114,18 @@ export class ProcessParameterController {
   }
 
   /**
-   * Helper to extract user context from request
-   * TODO: Replace with actual JWT token parsing when authentication is implemented
+   * Extract user context from authenticated JWT token
+   * Requires JwtAuthGuard to be applied
    */
   private extractUserContext(req: any): UserRequest {
-    // For now, return a mock super-admin context
-    // In production, this should parse the JWT token and extract real user data
+    if (!req.user) {
+      throw new ForbiddenException('User context not found in request');
+    }
+
     return {
-      userId: req.user?.id || 'mock-user-id',
-      factoryId: req.user?.factoryId || null,
-      role: req.user?.role || 'super-admin',
+      userId: req.user.id || req.user.userId,
+      factoryId: req.user.factoryId || req.user.companyId || null,
+      role: req.user.role || 'factory-user',
     };
   }
 }

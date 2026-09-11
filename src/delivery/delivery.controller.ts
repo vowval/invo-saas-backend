@@ -43,6 +43,7 @@ export class DeliveryController {
       destination: body.destination,
       remarks: body.remarks,
       userId: req.user.id,
+      companyId: req.user.companyId,
       supervisorOverride: body.supervisorOverride,
       overrideReason: body.overrideReason,
     });
@@ -60,6 +61,7 @@ export class DeliveryController {
     return this.deliveryService.startDelivery({
       deliveryId,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
   }
 
@@ -86,6 +88,7 @@ export class DeliveryController {
       weight: body.weight,
       rolls: body.rolls,
       remarks: body.remarks,
+      companyId: req.user.companyId,
     });
   }
 
@@ -102,11 +105,13 @@ export class DeliveryController {
     const delivery = await this.deliveryService.completeDelivery({
       deliveryId,
       userId: req.user.id,
+      companyId: req.user.companyId,
     });
 
     // Auto-check and transition to READY_FOR_INVOICE
     await this.deliveryService.checkAndTransitionToReadyForInvoice(
       delivery.job.id,
+      req.user.companyId,
     );
 
     return delivery;
@@ -117,8 +122,11 @@ export class DeliveryController {
    * Get delivery details
    */
   @Get(':deliveryId')
-  async getDelivery(@Param('deliveryId') deliveryId: string) {
-    return this.deliveryService.getDelivery(deliveryId);
+  async getDelivery(
+    @Param('deliveryId') deliveryId: string,
+    @Req() req: any,
+  ) {
+    return this.deliveryService.getDelivery(deliveryId, req.user.companyId);
   }
 
   /**
@@ -126,7 +134,10 @@ export class DeliveryController {
    * Get delivery for a job
    */
   @Get('job/:jobId')
-  async getDeliveryByJob(@Param('jobId') jobId: string) {
-    return this.deliveryService.getDeliveryByJob(jobId);
+  async getDeliveryByJob(
+    @Param('jobId') jobId: string,
+    @Req() req: any,
+  ) {
+    return this.deliveryService.getDeliveryByJob(jobId, req.user.companyId);
   }
 }
